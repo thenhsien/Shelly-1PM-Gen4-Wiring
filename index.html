@@ -1,820 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-exported="1"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
-        window.__firebase_config = firebaseConfig;
-        window.__initial_auth_token = initialAuthToken;
-        window.__app_id = appId;
-            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwNjQ0OTc2MjY2ODEyNjI5NTMxMSIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjX2QwZWQzYzdjNGRhNjhhMGZfaW5kZXguaHRtbC03OTAifSwiZXhwIjoxNzk1MDYyOTEzLCJpYXQiOjE3OTUwNTkzMTMsImFsZyI6IlJTMjU2In0.hE_c_tOUaesyg05ZzDCm9-603l9vZvsunfrajFRzwUWC8w3qymqWWj8tmLRyaEJymonRDG3xrdl14o2W9DBseeAmgqpXoInGKpRPl6rwFN1RMMbSnj4bTfQj30NXLxVVTKSzt6dHEmlHoCIgGlVYzEX0-N9mNjjlgK34aRWvILeeOvsj45iIvVcbqRcH-WCO7A_gDjjwKLVZosV_MgE_87DZPXp0Tr7Q0pboNWDOucHPn5MorE3jGNxCQmhR3k2BIebLNH-XPrbggS6z9mflm-NkyPIGf9d-p-0FFjpkRzrB2Bd63VTTMXv9BWkznLP_-Y0NXYVr1J0bulNk60GSOA","c_d0ed3c7c4da68a0f_index.html-790")</script><script data-bard-client-injected="true">
-  document.addEventListener('input', (event) => {
-    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
-      const clonedDoc = document.cloneNode(true);
-      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
-      injectedScripts.forEach(el => el.remove());
-      window.parent.postMessage({
-        type: 'inlineEdit',
-        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
-      }, '*');
-    }
-  });
-</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
-</script><script data-bard-client-injected="true">(function() {
-  const SCROLL_KEYS = new Set([
-    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
-    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
-  ]);
-  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
-
-  function isTextEntryTarget(target) {
-    if (!target) return false;
-    const tagName = target.tagName;
-    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
-        tagName === 'SELECT' || target.isContentEditable === true;
-  }
-
-  // An element absorbs the key only if it both overflows on the axis being
-  // scrolled and is configured to scroll on that axis. The cheap dimension
-  // test runs first because getComputedStyle forces a style recalc, and this
-  // runs on every keypress. Each axis is read from its own longhand: the
-  // 'overflow' shorthand serializes as two values when the axes differ, which
-  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
-  function canScroll(node, horizontal) {
-    const overflows = horizontal ? node.scrollWidth > node.clientWidth
-                                 : node.scrollHeight > node.clientHeight;
-    if (!overflows) return false;
-    const style = window.getComputedStyle(node);
-    const overflow = horizontal ? style.overflowX : style.overflowY;
-    return overflow === 'auto' || overflow === 'scroll';
-  }
-
-  // Walks up from the event target so nested scrollers keep their behavior.
-  // <body> is included because pages that pin the root height make it the
-  // scroll container.
-  function hasScrollableAncestor(target, horizontal) {
-    let node = target;
-    while (node && node !== document.documentElement) {
-      if (canScroll(node, horizontal)) return true;
-      node = node.parentElement;
-    }
-    return false;
-  }
-
-  function rootCanScroll(horizontal) {
-    const scroller = document.scrollingElement || document.documentElement;
-    if (!scroller) return false;
-    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
-    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
-                      : scroller.scrollHeight > window.innerHeight + 1;
-  }
-
-  window.addEventListener('keydown', function(event) {
-    if (!SCROLL_KEYS.has(event.key)) return;
-    if (event.defaultPrevented) return;
-    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
-    // reserved for shortcuts, so none of them are scroll intent.
-    if (event.altKey || event.metaKey || event.ctrlKey) return;
-
-    const target = event.target;
-    if (isTextEntryTarget(target)) return;
-
-    // Anything that can still absorb the scroll gets to keep it.
-    const horizontal = HORIZONTAL_KEYS.has(event.key);
-    if (rootCanScroll(horizontal)) return;
-    if (hasScrollableAncestor(target, horizontal)) return;
-
-    event.preventDefault();
-  }, {capture: true, passive: false});
-})();</script><script data-bard-client-injected="true">(function() {
-  // Ensure this script is executed only once
-  if (window.firebaseAuthBridgeScriptLoaded) {
-    return;
-  }
-  window.firebaseAuthBridgeScriptLoaded = true;
-
-  let nextTokenPromiseId = 0;
-
-  // Stores { resolve, reject } for ongoing token requests
-  const pendingTokenPromises = {};
-
-  // Listen for messages from the Host Application
-  window.addEventListener('message', function(event) {
-
-    const messageData = event.data;
-
-  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
-      const { success, token, error, promiseId } = messageData ?? {};
-      if (pendingTokenPromises[promiseId]) {
-        if (success) {
-          pendingTokenPromises[promiseId].resolve(token);
-        } else {
-          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
-        }
-        delete pendingTokenPromises[promiseId];
-      }
-    }
-  });
-
-  // Expose a function for the Generated App to request a new Firebase token
-  window.requestNewFirebaseToken = function() {
-    const currentPromiseId = nextTokenPromiseId++;
-    const promise = new Promise((resolve, reject) => {
-      pendingTokenPromises[currentPromiseId] = { resolve, reject };
-    });
-    if (window.parent && window.parent !== window) {
-      window.parent.postMessage({
-        type: 'REQUEST_NEW_FIREBASE_TOKEN',
-        promiseId: currentPromiseId
-      }, '*');
-    } else {
-      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
-      delete pendingTokenPromises[currentPromiseId];
-    }
-    return promise;
-  };
-})();</script><script data-bard-client-injected="true">
-let realOriginalGetUserMedia = null;
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
-}
-
-(function() {
-  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
-    try {
-      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
-        get: function() {
-          return undefined; // Or throw an error
-        },
-        configurable: false
-      });
-    } catch (error) {
-      console.error("Error defining prototype getter:", error);
-    }
-  }
-})();
-
-(function() {
-  const pendingMediaResolvers = {};
-  let nextMediaPromiseId = 0;
-
-  function requestMediaPermissions(constraints) {
-    const mediaPromiseId = nextMediaPromiseId++;
-    const promise = new Promise((resolve, reject) => {
-      pendingMediaResolvers[mediaPromiseId] = (granted) => {
-        delete pendingMediaResolvers[mediaPromiseId];
-        resolve(granted);
-      };
-    });
-
-    window.parent.postMessage({
-      type: 'requestMediaPermission',
-      constraints: constraints,
-      promiseId: mediaPromiseId,
-    }, '*');
-
-    return promise;
-  }
-
-  let originalGetUserMedia = realOriginalGetUserMedia;
-
-  function interceptGetUserMedia() {
-    if (navigator.mediaDevices) {
-      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
-        value: function(constraints) {
-          return requestMediaPermissions(constraints).then((granted) => {
-            if (granted) {
-              if (originalGetUserMedia) {
-                return originalGetUserMedia(constraints);
-              } else {
-                throw new Error("Original getUserMedia not available.");
-              }
-            } else {
-              throw new DOMException('Permission denied', 'NotAllowedError');
-            }
-          });
-        },
-        writable: false,
-        configurable: false
-      });
-    }
-  }
-
-  interceptGetUserMedia();
-
-  const observer = new MutationObserver(function(mutationsList, observer) {
-    for (const mutation of mutationsList) {
-      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
-        interceptGetUserMedia();
-      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
-        interceptGetUserMedia();
-      } else if (mutation.type === 'childList' && mutation.addedNodes) {
-        mutation.addedNodes.forEach(node => {
-          if (node === navigator.mediaDevices) {
-            interceptGetUserMedia();
-          }
-        });
-      }
-    }
-  });
-
-  function interceptSpeechRecognition() {
-    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
-      return;
-    }
-
-    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    const SpeechRecognitionWrapper = function(...args) {
-      const recognizer = new OriginalSpeechRecognition(...args);
-      const originalStart = recognizer.start.bind(recognizer);
-
-      recognizer.start = function() {
-        requestMediaPermissions({ audio: true }).then(granted => {
-          if (granted) {
-            originalStart();
-          } else {
-            const errorEvent = new SpeechRecognitionErrorEvent('error');
-            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
-            recognizer.dispatchEvent(errorEvent);
-          }
-        });
-      };
-
-      return recognizer;
-    };
-
-    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
-    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
-
-    if (window.SpeechRecognition) {
-      window.SpeechRecognition = SpeechRecognitionWrapper;
-    }
-    if (window.webkitSpeechRecognition) {
-      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
-    }
-  }
-
-  interceptSpeechRecognition();
-
-  window.addEventListener('message', function(event) {
-    if (event.data) {
-      if (event.data.type === 'resolveMediaPermission') {
-        const { promiseId, granted } = event.data;
-        if (pendingMediaResolvers[promiseId]) {
-          pendingMediaResolvers[promiseId](granted);
-        }
-      }
-    }
-  });
-
-})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
-function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
-
- Copyright The Closure Library Authors.
- SPDX-License-Identifier: Apache-2.0
-*/
-function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
-let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
-null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
-G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
-16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
-(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
-(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
-url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
-</script><script data-bard-client-injected="true">((function(modelInformation) {
-  const originalFetch = window.fetch;
-  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
-  let googleLlmBaseApiUrls = [
-    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
-    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
-    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
-    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
-    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
-    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
-    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
-    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
-    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
-  ];
-  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
-    googleLlmBaseApiUrls.push(
-      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
-      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
-    );
-  });
-  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
-    googleLlmBaseApiUrls.push(
-      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
-      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
-      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
-      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
-    );
-  });
-  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
-    googleLlmBaseApiUrls.push(
-      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
-      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
-    );
-  });
-  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
-    googleLlmBaseApiUrls.push(
-      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
-      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
-    );
-  });
-
-  const pendingFetchResolvers = {};
-  let nextPromiseId = 0;
-
-  function handleStringInput(input, optionsArgument) {
-    const actualUrl = input;
-    const fetchCallArgs = [actualUrl, optionsArgument];
-    const effectiveOptions = optionsArgument || {};
-    const bodyForApiKeyCheck = effectiveOptions.body;
-    const bodyForPostMessage = effectiveOptions.body;
-    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
-  }
-
-  function handleRequestInput(input, optionsArgument) {
-    const actualUrl = input.url;
-    const fetchCallArgs = [input, optionsArgument];
-    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
-    let bodyForApiKeyCheck;
-    let bodyForPostMessage;
-
-    if (optionsArgument) {
-      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
-      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
-      if ('body' in optionsArgument) {
-        bodyForApiKeyCheck = optionsArgument.body;
-        bodyForPostMessage = optionsArgument.body;
-      } else {
-        bodyForApiKeyCheck = undefined;
-        bodyForPostMessage = input.body;
-      }
-    } else {
-      bodyForApiKeyCheck = undefined;
-      bodyForPostMessage = input.body;
-    }
-    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
-  }
-
-  window.fetch = function(input, optionsArgument) {
-    let actualUrl;
-    let fetchCallArgs;
-    let effectiveOptions = {};
-    let bodyForApiKeyCheck;
-    let bodyForPostMessage;
-
-    if (typeof input === 'string') {
-      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
-    } else if (input instanceof Request) {
-      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
-    } else {
-      return originalFetch.apply(window, [input, optionsArgument]);
-    }
-
-    effectiveOptions.method = effectiveOptions.method || 'GET';
-    if (!effectiveOptions.headers) {
-      effectiveOptions.headers = new Headers();
-    }
-
-
-    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
-      let apiKeyIsNull = true;
-
-      const regex = new RegExp("models/([^:]+)");
-      const modelNameMatch = actualUrl.match(regex);
-      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
-
-
-      try {
-        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
-        const apiKeyParam = urlObject.searchParams.get('key');
-        if (apiKeyParam) {
-          apiKeyIsNull = false;
-        }
-      } catch (e) {
-        // Continue checks even if URL parsing fails
-      }
-
-      if (apiKeyIsNull && effectiveOptions.headers) {
-        const h = new Headers(effectiveOptions.headers);
-        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
-        if (apiKeyHeaderValue) {
-          apiKeyIsNull = false;
-          return originalFetch.apply(window, fetchCallArgs);
-        }
-      }
-
-      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
-        try {
-          const bodyData = JSON.parse(bodyForApiKeyCheck);
-          if (bodyData && bodyData.apiKey) {
-            apiKeyIsNull = false;
-            return originalFetch.apply(window, fetchCallArgs);
-          }
-        } catch (e) {
-          // Ignore JSON parsing errors
-        }
-      }
-
-      if(apiKeyIsNull) {
-        const promiseId = nextPromiseId++;
-        const promise = new Promise((resolve) => {
-          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
-            delete pendingFetchResolvers[promiseId];
-            resolve(resolvedResponse);
-          };
-        });
-
-        let serializedBodyForPostMessage;
-        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
-            serializedBodyForPostMessage = bodyForPostMessage;
-        } else if (bodyForPostMessage instanceof ReadableStream) {
-            serializedBodyForPostMessage = null;
-        } else {
-            try {
-                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
-            } catch (e) {
-                serializedBodyForPostMessage = null;
-            }
-        }
-
-        const messageOptions = {
-            method: effectiveOptions.method,
-            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
-            body: serializedBodyForPostMessage
-        };
-
-        window.parent.postMessage({
-          type: 'requestFetch',
-          url: actualUrl,
-          modelName: modelName,
-          options: messageOptions,
-          promiseId: promiseId,
-        }, '*');
-
-        return promise;
-      }
-      return originalFetch.apply(window, fetchCallArgs);
-    }
-    return originalFetch.apply(window, fetchCallArgs);
-  };
-
-  window.addEventListener('message', function(event) {
-    if (event.data && event.data.type === 'resolveFetch') {
-      const { promiseId, response } = event.data;
-      if (pendingFetchResolvers[promiseId]) {
-        try {
-          const reconstructedResponse = new Response(response.body, {
-            status: response.status,
-            statusText: response.statusText,
-            headers: new Headers(response.headers),
-          });
-          pendingFetchResolvers[promiseId](reconstructedResponse);
-        } catch (error) {
-          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
-        }
-      }
-    }
-  });
-
-}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
-  const OVERLAY_SELECTOR =
-    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
-
-  function isVisibleOverlay(element) {
-    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
-      return false;
-    }
-    if (window.getComputedStyle(element).visibility === 'hidden') {
-      return false;
-    }
-    for (let cur = element; cur; cur = cur.parentElement) {
-      if (window.getComputedStyle(cur).display === 'none') {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function hasOpenOverlay() {
-    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
-    for (let i = 0; i < candidates.length; i++) {
-      if (isVisibleOverlay(candidates[i])) {
-        return true;
-      }
-    }
-    try {
-      if (document.querySelector('[popover]:popover-open')) {
-        return true;
-      }
-    } catch (e) {
-      // Ignore engines that do not support :popover-open.
-    }
-    return false;
-  }
-
-  function isNonEmptySearchInput(target) {
-    return (
-      Boolean(target) &&
-      target.tagName === 'INPUT' &&
-      typeof target.type === 'string' &&
-      target.type.toLowerCase() === 'search' &&
-      typeof target.value === 'string' &&
-      target.value.length > 0
-    );
-  }
-
-  function shouldIgnoreEscape(event) {
-    return (
-      event.key !== 'Escape' ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.shiftKey ||
-      event.isComposing ||
-      event.repeat ||
-      event.keyCode === 229 ||
-      isNonEmptySearchInput(event.target)
-    );
-  }
-
-  let shouldIgnoreCaptureState = false;
-
-  window.addEventListener(
-    'keydown',
-    function(event) {
-      if (event.key === 'Escape') {
-        shouldIgnoreCaptureState =
-          hasOpenOverlay() || isNonEmptySearchInput(event.target);
-      }
-    },
-    {capture: true},
-  );
-
-  window.addEventListener('keydown', function(event) {
-    if (
-      shouldIgnoreEscape(event) ||
-      event.defaultPrevented ||
-      shouldIgnoreCaptureState
-    ) {
-      return;
-    }
-    const wasBlockedOnCapture = shouldIgnoreCaptureState;
-    queueMicrotask(function() {
-      if (event.defaultPrevented || wasBlockedOnCapture) {
-        return;
-      }
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({'type': 'escapeKey'}, '*');
-      }
-    });
-  });
-})();</script><script data-bard-client-injected="true">(function() {
-  function normalizeSlug(str) {
-    try {
-      return str
-        .trim()
-        .toLowerCase()
-        .replace(/[^p{L}p{N}s_-]/gu, '')
-        .replace(/s+/g, '-');
-    } catch (e) {
-      return str
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9s_-]/g, '')
-        .replace(/s+/g, '-');
-    }
-  }
-
-  function findTargetElement(hash) {
-    if (!hash || hash === '#') {
-      return null;
-    }
-    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
-    let decodedId = rawId;
-    try {
-      decodedId = decodeURIComponent(rawId);
-    } catch (e) {
-      // Ignore URI malformed errors.
-    }
-
-    // 1. Direct ID match (raw and decoded).
-    let target = document.getElementById(rawId) || document.getElementById(decodedId);
-    if (target) {
-      return target;
-    }
-
-    // 2. Name attribute match (<a name="...">).
-    try {
-      if (typeof CSS !== 'undefined' && CSS.escape) {
-        target =
-          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
-          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
-      } else {
-        const namedElements = document.getElementsByName(rawId);
-        if (namedElements && namedElements.length > 0) {
-          return namedElements[0];
-        }
-      }
-    } catch (e) {
-      // Ignore querySelector syntax errors.
-    }
-    if (target) {
-      return target;
-    }
-
-    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
-    const targetSlug = normalizeSlug(decodedId);
-    if (targetSlug) {
-      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
-        if (normalizeSlug(heading.textContent || '') === targetSlug) {
-          return heading;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  document.addEventListener('click', function(event) {
-    const target = event.target;
-    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
-    if (!anchor) {
-      return;
-    }
-
-    const href = anchor.getAttribute('href');
-    if (
-      !href ||
-      href.trim().toLowerCase().startsWith('javascript:') ||
-      anchor.hasAttribute('download')
-    ) {
-      return;
-    }
-
-    // Check if the link is an in-page hash / anchor link.
-    if (href.startsWith('#')) {
-      event.preventDefault();
-      const targetElement = findTargetElement(href);
-      if (targetElement) {
-        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
-      }
-      return;
-    }
-
-    // Check if the URL has the same origin/pathname but with a hash.
-    try {
-      const url = new URL(anchor.href, window.location.href);
-      if (
-        url.hash &&
-        url.origin === window.location.origin &&
-        url.pathname === window.location.pathname
-      ) {
-        event.preventDefault();
-        const targetElement = findTargetElement(url.hash);
-        if (targetElement) {
-          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
-        }
-        return;
-      }
-    } catch (e) {
-      // Fall through if URL parsing fails.
-    }
-
-    // For all external or full navigation links, prevent iframe-level navigation
-    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
-    // safely in a new tab/window.
-    if (anchor.target !== '_blank') {
-      event.preventDefault();
-      window.open(anchor.href, '_blank', 'noopener,noreferrer');
-    }
-  }, {capture: true});
-})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
-</script><script data-bard-client-injected="true">(function() {
-  const originalConsoleLog = console.log;
-  const originalConsoleError = console.error;
-
-    /**
-   * Normalizes an error event or a promise rejection reason into a structured error object.
-   * @param {*} errorEventOrReason The error object or reason.
-   * @return {object} Structured error data { message, name, stack }.
-   */
-  function getErrorObject(errorEventOrReason) {
-    if (errorEventOrReason instanceof Error) {
-      return {
-        message: errorEventOrReason.message,
-        name: errorEventOrReason.name,
-        stack: errorEventOrReason.stack,
-      };
-    }
-    // Fallback for non-Error objects.
-    try {
-      return {
-        message: JSON.stringify(errorEventOrReason),
-        name: 'UnknownErrorType',
-        stack: null,
-      };
-    } catch (e) {
-      return {
-        message: String(errorEventOrReason),
-        name: 'UnknownErrorTypeNonStringifiable',
-        stack: null,
-      };
-    }
-  }
-
-  /**
-   * Converts an array of arguments (from log/error) into a single string.
-   * Handles Error objects specially to include their message and stack.
-   * @param {Array<*>} args - Arguments passed to console methods.
-   * @return {string} A string representation of the arguments.
-   */
-  function stringifyArgs(args) {
-    return args
-      .map((arg) => {
-        if (arg instanceof Error) {
-          const {message, stack} = arg;
-          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
-        }
-        if (typeof arg === 'object' && arg !== null) {
-          try {
-            return JSON.stringify(arg);
-          } catch (error) {
-            return '[Circular Object]';
-          }
-        } else {
-          return String(arg);
-        }
-      })
-      .join(' ');
-  }
-
-  console.log = function(...args) {
-    const logString = stringifyArgs(args);
-    window.parent.postMessage({ type: 'log', message: logString }, '*');
-    originalConsoleLog.apply(console, args);
-  };
-
-  console.error = function(...args) {
-    let errorData;
-    if (args.length > 0 && args[0] instanceof Error) {
-      const err = args[0];
-      // If the first arg is an Error, capture its details.
-      errorData = {
-        type: 'error',
-        source: 'CONSOLE_ERROR',
-        ...getErrorObject(err),
-        rawArgsString: stringifyArgs(args.slice(1)),
-        timestamp: new Date().toISOString(),
-      };
-    } else {
-      // If not an Error object, treat all args as a general error message.
-      errorData = {
-        type: 'error',
-        source: 'CONSOLE_ERROR',
-        message: stringifyArgs(args),
-        name: 'ConsoleLoggedError',
-        stack: null,
-        timestamp: new Date().toISOString(),
-      };
-    }
-    window.parent.postMessage(errorData, '*');
-    originalConsoleError.apply(console, args);
-  };
-
-  // Listen for global unhandled synchronous errors.
-  window.addEventListener('error', function(event) {
-    const errorDetails = event.error ? getErrorObject(event.error) : {
-      message: event.message,
-      name: 'GlobalError',
-      stack: null,
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
-    };
-
-    window.parent.postMessage({
-      type: 'error',
-      source: 'global',
-      ...errorDetails,
-      message: errorDetails.message || event.message,
-      timestamp: new Date().toISOString(),
-    }, '*');
-  });
-
-  // Listen for unhandled promise rejections (asynchronous errors).
-  window.addEventListener('unhandledrejection', function(event) {
-    const errorDetails = getErrorObject(event.reason);
-
-    window.parent.postMessage({
-      type: 'error',
-      source: 'unhandledrejection',
-      ...errorDetails,
-      message: errorDetails.message || 'Unhandled Promise Rejection',
-      timestamp: new Date().toISOString(),
-    }, '*');
-  });
-
-})();</script>
+<html lang="zh-Hant" data-exported="1"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shelly 1PM Gen4 互動接線教學與 Notion 嵌入工具</title>
@@ -865,7 +50,8 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
     body.is-embed-mode {
       background-color: #ffffff;
     }
-    body.is-embed-mode #appHeader {
+    body.is-embed-mode #appHeader,
+    body.is-embed-mode #exportCard {
       display: none !important;
     }
     body.is-embed-mode .main-container {
@@ -958,6 +144,57 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
       gap: 14px;
     }
 
+    /* 頂部接線模式切換器（預留線模式 / 已裝設 Shelly 模式，Notion 嵌入時保留） */
+    .mode-switcher-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: var(--bg-page);
+      padding: 5px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 520px) {
+      .mode-switcher-bar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mode-tab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 12px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .mode-tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .mode-tab-btn.is-active {
+      background: #ffffff;
+      color: var(--text-primary);
+      border-color: var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mode-tab-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
     .diagram-toolbar {
       display: flex;
       flex-wrap: wrap;
@@ -1022,7 +259,7 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
 
     #wiringSvg {
       width: 100%;
-      max-width: 560px;
+      max-width: 590px;
       height: auto;
       display: block;
       user-select: none;
@@ -1493,16 +730,28 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
 
     <!-- 左側主面板：互動式 SVG 接線圖 -->
     <section class="diagram-card">
+      <!-- 接線模式切換器（於 Notion 嵌入頁面中亦可直接切換） -->
+      <div class="mode-switcher-bar" role="tablist" aria-label="接線圖模式切換">
+        <button type="button" id="modeInstalledBtn" class="mode-tab-btn is-active" data-diagram-mode="installed" role="tab" aria-selected="true">
+          <span class="mode-tab-dot" style="background: #E52521;"></span>
+          <span>已裝設 Shelly 1PM Gen4（完整接線）</span>
+        </button>
+        <button type="button" id="modePrewireBtn" class="mode-tab-btn" data-diagram-mode="prewire" role="tab" aria-selected="false">
+          <span class="mode-tab-dot" style="background: #0284c7;"></span>
+          <span>未裝設 Shelly（維修孔預留線）</span>
+        </button>
+      </div>
+
       <div class="diagram-toolbar">
-        <div id="circuitStatusPill" class="status-pill is-energized">
+        <div id="circuitStatusPill" class="status-pill">
           <span class="status-dot"></span>
-          <span id="circuitStatusText">開關閉合（CLOSED）・內部繼電器吸合・燈具點亮</span>
+          <span id="circuitStatusText">開關斷開（OPEN）・燈具熄滅</span>
         </div>
         <span class="interaction-hint">💡 可直接點擊圖中「開闔式開關」或「維修孔」互動</span>
       </div>
 
       <div class="svg-stage">
-        <svg id="wiringSvg" viewBox="0 0 600 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Shelly 1PM Gen4 互動接線圖">
+        <svg id="wiringSvg" viewBox="0 0 640 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Shelly 1PM Gen4 互動接線圖">
           <defs>
             <!-- 燈泡通電光暈漸層 -->
             <radialGradient id="bulbGlowGrad" cx="50%" cy="50%" r="50%">
@@ -1521,249 +770,334 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
                圖層 1：電源幹線標示（L / 110-240V~ / N）
                ================================================================ -->
           <g id="layer-power-labels">
-            <text id="labelL" x="542" y="50" font-family="sans-serif" font-size="18" font-weight="800" fill="#E53935">L</text>
-            <text x="454" y="75" font-family="sans-serif" font-size="13.5" font-weight="700" fill="#334155">110 - 240 V~</text>
-            <text id="labelN" x="542" y="100" font-family="sans-serif" font-size="18" font-weight="800" fill="#007AFF">N</text>
+            <text id="labelL" x="584" y="50" font-family="sans-serif" font-size="18" font-weight="800" fill="#E53935">L</text>
+            <text x="494" y="75" font-family="sans-serif" font-size="13.5" font-weight="700" fill="#334155">110 - 240 V~</text>
+            <text id="labelN" x="584" y="100" font-family="sans-serif" font-size="18" font-weight="800" fill="#007AFF">N</text>
           </g>
 
           <!-- ================================================================
-               圖層 2：基礎導線路徑（支援四步驟生長動畫與黑白線稿切換）
+               圖層 2：基礎導線路徑（支援雙模式切換、四步驟生長動畫與黑白線稿）
                ================================================================ -->
           <g id="layer-wires" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <!-- 1. 中性線 N（藍色 #007AFF）：右幹線 -> 燈泡頂端 & 分接至 Shelly N(+) 端子 -->
-            <path id="wireNMain" class="wire-path step-1-wire" d="M 530 95 L 135 95 L 135 162" stroke="#007AFF" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
-            <path id="wireNDevice" class="wire-path step-1-wire" d="M 405 95 L 405 375" stroke="#007AFF" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
-            <circle id="nodeN" class="step-1-node" cx="405" cy="95" r="4.8" fill="#007AFF" style="opacity: 1;"></circle>
+            <!-- 1. 中性線 N（藍色 #007AFF）：共用燈具主幹線 + 依模式切換至設備或預留維修孔 -->
+            <path id="wireNMain" class="wire-path step-1-wire" d="M 575 95 L 140 95 L 140 140" stroke="#007AFF" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
+            <path id="wireNDevice" class="wire-path step-1-wire" data-mode="installed" d="M 435 95 L 435 375" stroke="#007AFF" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
+            <path id="prewireWireN" class="wire-path step-1-wire" data-mode="prewire" d="M 435 95 L 435 312" stroke="#007AFF" stroke-width="3.5" style="display: none;"></path>
+            <circle id="nodeN" class="step-1-node" cx="435" cy="95" r="4.8" fill="#007AFF" style="opacity: 1;"></circle>
 
-            <!-- 2. 火線 L（紅色 #E53935）：右幹線 -> Shelly 中間 L(⊥) 端子 & 跨過 N 線跳線弧 -> 開闔式開關夾座 -->
-            <path id="wireLDevice" class="wire-path step-2-wire" d="M 530 45 L 300 45 L 300 375" stroke="#E53935" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
-            <path id="wireLSwitch" class="wire-path step-2-wire" d="M 300 45 L 252 45 L 252 85 A 10 10 0 0 1 252 105 L 252 152" stroke="#E53935" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
-            <circle id="nodeL" class="step-2-node" cx="300" cy="45" r="4.8" fill="#E53935" style="opacity: 1;"></circle>
+            <!-- 2. 火線 L（紅色 #E53935）：跨過 N 線跳線弧至開關夾座 + 依模式切換至設備或預留維修孔 -->
+            <path id="wireLDevice" class="wire-path step-2-wire" data-mode="installed" d="M 575 45 L 330 45 L 330 375" stroke="#E53935" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
+            <path id="prewireWireL" class="wire-path step-2-wire" data-mode="prewire" d="M 575 45 L 330 45 L 330 312" stroke="#E53935" stroke-width="3.5" style="display: none;"></path>
+            <path id="wireLSwitch" class="wire-path step-2-wire" d="M 330 45 L 282 45 L 282 85 A 10 10 0 0 1 282 105 L 282 158" stroke="#E53935" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
+            <circle id="nodeL" class="step-2-node" cx="330" cy="45" r="4.8" fill="#E53935" style="opacity: 1;"></circle>
 
-            <!-- 3. 控制回線 SW（橘色 #FB8C00）：開闔式開關轉軸 -> 穿過維修孔右側護套 -> Shelly SW 端子 -->
-            <path id="wireSW" class="wire-path step-3-wire" d="M 230 202 L 230 375" stroke="#FB8C00" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
+            <!-- 3. 控制回線 SW（橘色 #FB8C00）：模式一接至 Shelly SW 端子；模式二接至維修孔並接端子 -->
+            <path id="wireSW" class="wire-path step-3-wire" data-mode="installed" d="M 260 218 L 260 375" stroke="#FB8C00" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
+            <path id="prewireWireSW" class="wire-path step-3-wire" data-mode="prewire" d="M 260 218 L 260 312" stroke="#FB8C00" stroke-width="3.5" style="display: none;"></path>
 
-            <!-- 4. 負載輸出線 O（綠色 #43A047）：Shelly O 端子 -> 穿過維修孔左側護套 -> 燈泡底端 -->
-            <path id="wireO" class="wire-path step-4-wire" d="M 195 375 L 195 228 L 135 228 L 135 206" stroke="#43A047" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
+            <!-- 4. 負載輸出線 O（綠色 #43A047）：模式一自 Shelly O 端子輸出；模式二自維修孔並接端子輸出 -->
+            <path id="wireO" class="wire-path step-4-wire" data-mode="installed" d="M 225 375 L 225 228 L 140 228 L 140 184" stroke="#43A047" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
+            <path id="prewireWireO" class="wire-path step-3-wire" data-mode="prewire" d="M 225 312 L 225 228 L 140 228 L 140 184" stroke="#43A047" stroke-width="3.5" style="display: none;"></path>
           </g>
 
           <!-- ================================================================
                圖層 3：電流流動脈衝疊加層（開關閉合且開啟電流動畫時顯示）
                ================================================================ -->
-          <g id="layer-pulses" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1">
-            <!-- L 至 Shelly 供電脈衝 -->
-            <path id="pulseLDevice" class="pulse-flow-fwd" d="M 530 45 L 300 45 L 300 375" stroke="#fca5a5" stroke-width="3.5" stroke-dasharray="6 8"></path>
-            <!-- L 經跳線弧至開關脈衝 -->
-            <path id="pulseLSwitch" class="pulse-flow-fwd" d="M 300 45 L 252 45 L 252 85 A 10 10 0 0 1 252 105 L 252 152" stroke="#fca5a5" stroke-width="3.5" stroke-dasharray="6 8"></path>
-            <!-- SW 觸發訊號脈衝 -->
-            <path id="pulseSW" class="pulse-flow-fwd" d="M 230 202 L 230 375" stroke="#fde047" stroke-width="3.5" stroke-dasharray="6 8"></path>
-            <!-- O 負載輸出至燈泡脈衝 -->
-            <path id="pulseO" class="pulse-flow-fwd" d="M 195 375 L 195 228 L 135 228 L 135 206" stroke="#86efac" stroke-width="3.5" stroke-dasharray="6 8"></path>
+          <g id="layer-pulses" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0">
+            <!-- L 至 Shelly 供電脈衝（僅模式一） -->
+            <path id="pulseLDevice" class="pulse-flow-fwd" data-mode="installed" d="M 575 45 L 330 45 L 330 375" stroke="#fca5a5" stroke-width="3.5" stroke-dasharray="6 8"></path>
+            <!-- L 經跳線弧至開關脈衝（雙模式共用） -->
+            <path id="pulseLSwitch" class="pulse-flow-fwd" d="M 330 45 L 282 45 L 282 85 A 10 10 0 0 1 282 105 L 282 158" stroke="#fca5a5" stroke-width="3.5" stroke-dasharray="6 8"></path>
+            <!-- SW 觸發訊號脈衝（依模式切換終點） -->
+            <path id="pulseSW" class="pulse-flow-fwd" data-mode="installed" d="M 260 218 L 260 375" stroke="#fde047" stroke-width="3.5" stroke-dasharray="6 8"></path>
+            <path id="prewirePulseSW" class="pulse-flow-fwd" data-mode="prewire" d="M 260 218 L 260 322 L 225 322" stroke="#fde047" stroke-width="3.5" stroke-dasharray="6 8" style="display: none;"></path>
+            <!-- O 負載輸出至燈泡脈衝（依模式切換起點） -->
+            <path id="pulseO" class="pulse-flow-fwd" data-mode="installed" d="M 225 375 L 225 228 L 140 228 L 140 184" stroke="#86efac" stroke-width="3.5" stroke-dasharray="6 8"></path>
+            <path id="prewirePulseO" class="pulse-flow-fwd" data-mode="prewire" d="M 225 322 L 225 228 L 140 228 L 140 184" stroke="#86efac" stroke-width="3.5" stroke-dasharray="6 8" style="display: none;"></path>
             <!-- N 中性線迴路脈衝 -->
-            <path id="pulseNMain" class="pulse-flow-rev" d="M 530 95 L 135 95 L 135 162" stroke="#93c5fd" stroke-width="3.5" stroke-dasharray="6 8"></path>
-            <path id="pulseNDevice" class="pulse-flow-rev" d="M 405 95 L 405 375" stroke="#93c5fd" stroke-width="3.5" stroke-dasharray="6 8"></path>
+            <path id="pulseNMain" class="pulse-flow-rev" d="M 575 95 L 140 95 L 140 140" stroke="#93c5fd" stroke-width="3.5" stroke-dasharray="6 8"></path>
+            <path id="pulseNDevice" class="pulse-flow-rev" data-mode="installed" d="M 435 95 L 435 375" stroke="#93c5fd" stroke-width="3.5" stroke-dasharray="6 8"></path>
           </g>
 
           <!-- ================================================================
-               圖層 4：燈泡符號 ⊗（通電時發暖黃光，不顯示任何負載瓦數文字）
+               圖層 4：燈具符號（⊗，無瓦數負載文字，通電時發光）
                ================================================================ -->
           <g id="layer-bulb">
-            <!-- 通電外圍光暈 -->
-            <circle id="bulbHalo" cx="135" cy="184" r="38" fill="url(#bulbGlowGrad)" opacity="1"></circle>
-            <!-- 通電光芒射線 -->
-            <g id="bulbRays" stroke="#eab308" stroke-width="2.2" stroke-linecap="round" opacity="1">
-              <line x1="98" y1="184" x2="105" y2="184"></line>
-              <line x1="165" y1="184" x2="172" y2="184"></line>
-              <line x1="108" y1="157" x2="113" y2="162"></line>
-              <line x1="157" y1="206" x2="162" y2="211"></line>
-              <line x1="108" y1="211" x2="113" y2="206"></line>
-              <line x1="157" y1="162" x2="162" y2="157"></line>
+            <circle id="bulbHalo" cx="140" cy="162" r="40" fill="url(#bulbGlowGrad)" opacity="0"></circle>
+            <g id="bulbRays" stroke="#eab308" stroke-width="2.4" stroke-linecap="round" opacity="0">
+              <line x1="140" y1="127" x2="140" y2="134"></line>
+              <line x1="140" y1="190" x2="140" y2="197"></line>
+              <line x1="105" y1="162" x2="112" y2="162"></line>
+              <line x1="168" y1="162" x2="175" y2="162"></line>
+              <line x1="115.5" y1="137.5" x2="120.5" y2="142.5"></line>
+              <line x1="159.5" y1="181.5" x2="164.5" y2="186.5"></line>
+              <line x1="164.5" y1="137.5" x2="159.5" y2="142.5"></line>
+              <line x1="120.5" y1="181.5" x2="115.5" y2="186.5"></line>
             </g>
-            <!-- 標準燈泡圓圈與交叉線 -->
-            <circle id="bulbCircle" cx="135" cy="184" r="22" fill="#fef08a" stroke="#ca8a04" stroke-width="2.6"></circle>
-            <line x1="119.5" y1="168.5" x2="150.5" y2="199.5" stroke="#1e293b" stroke-width="2.4" stroke-linecap="round"></line>
-            <line x1="150.5" y1="168.5" x2="119.5" y2="199.5" stroke="#1e293b" stroke-width="2.4" stroke-linecap="round"></line>
+            <circle id="bulbCircle" cx="140" cy="162" r="22" fill="#ffffff" stroke="#1e293b" stroke-width="2.6"></circle>
+            <line x1="124.5" y1="146.5" x2="155.5" y2="177.5" stroke="#1e293b" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="155.5" y1="146.5" x2="124.5" y2="177.5" stroke="#1e293b" stroke-width="2.4" stroke-linecap="round"></line>
           </g>
 
           <!-- ================================================================
-               圖層 5：開闔式開關（Hinged Blade Switch，可點擊切換開闔）
+               圖層 5：開闔式開關（Hinged Blade Switch，狀態標籤位於左側不擋火線）
                ================================================================ -->
-          <g id="layer-hinged-switch">
-            <!-- 開闔擺動虛線軌跡弧 -->
-            <path d="M 203 155 A 54.6 54.6 0 0 1 252 152" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"></path>
+          <g id="layer-switch">
+            <!-- 閘片開闔虛線軌跡弧 -->
+            <path d="M 237 162 A 62 62 0 0 1 276 156" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"></path>
 
-            <!-- 上方固定 U 型夾座（接收紅色 L 火線） -->
-            <path d="M 246 147 L 246 156 Q 252 161 258 156 L 258 147" fill="none" stroke="#334155" stroke-width="2.6" stroke-linecap="round"></path>
-            <circle cx="252" cy="152" r="3.5" fill="#E53935" id="switchJawDot"></circle>
+            <!-- 上方 U 型固定夾座 (282, 158) -->
+            <path d="M 277 154 L 277 163 Q 282 167 287 163 L 287 154" fill="none" stroke="#1e293b" stroke-width="2.4" stroke-linecap="round"></path>
 
-            <!-- 可動金屬閘刀臂（繞轉軸 (230, 202) 旋轉：閉合 0deg / 斷開 -34deg） -->
-            <g id="switchBladeArm" transform="rotate(0 230 202)">
-              <!-- 金屬閘片 -->
-              <line x1="230" y1="202" x2="252" y2="152" stroke="#1e293b" stroke-width="4" stroke-linecap="round"></line>
-              <!-- 絕緣操作撥柄 -->
-              <line x1="242" y1="175" x2="255" y2="145" stroke="#f97316" stroke-width="6.5" stroke-linecap="round" id="switchInsulatedHandle"></line>
+            <!-- 可動絕緣撥柄閘片（繞轉軸 (260, 218) 旋轉） -->
+            <g id="switchBladeArm" transform="rotate(-24 260 218)" style="transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);">
+              <line x1="260" y1="218" x2="271" y2="188" stroke="#1e293b" stroke-width="3.6" stroke-linecap="round"></line>
+              <line x1="271" y1="188" x2="282" y2="158" stroke="#f97316" stroke-width="5.2" stroke-linecap="round"></line>
             </g>
 
-            <!-- 下方金屬轉軸鉸鏈（連接橘色 SW 控制線） -->
-            <circle cx="230" cy="202" r="6.5" fill="#ffffff" stroke="#1e293b" stroke-width="2.6"></circle>
-            <circle cx="230" cy="202" r="2.6" fill="#FB8C00" id="switchPivotDot"></circle>
+            <!-- 下方金屬轉軸鉸鏈 (260, 218) -->
+            <circle cx="260" cy="218" r="5.5" fill="#ffffff" stroke="#1e293b" stroke-width="2.5"></circle>
+            <circle cx="260" cy="218" r="2.2" fill="#f97316"></circle>
 
-            <!-- 開關狀態小標籤 -->
-            <g transform="translate(268, 170)">
-              <rect id="switchTagBg" x="0" y="0" width="64" height="22" rx="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.2"></rect>
-              <text id="switchTagText" x="32" y="14.5" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#15803d">開關閉合</text>
-            </g>
+            <!-- 開關狀態標籤（移至左側空白處，完全不遮擋右側紅色 L 火線） -->
+            <line x1="236" y1="196" x2="253" y2="212" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="2.5 2.5"></line>
+            <rect id="switchTagBg" x="170" y="184" width="66" height="24" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.2"></rect>
+            <text id="switchTagText" x="203" y="200" text-anchor="middle" font-family="sans-serif" font-size="11.5" font-weight="700" fill="#475569">開關斷開</text>
 
-            <!-- 擴大點擊感應區 -->
-            <rect id="switchHitTarget" x="192" y="136" width="144" height="78" rx="12" fill="transparent" style="cursor: pointer;" pointer-events="all"></rect>
+            <!-- 開關擴大點擊感應區 -->
+            <rect id="switchHitTarget" x="166" y="148" width="132" height="82" rx="10" fill="transparent" style="cursor: pointer;" pointer-events="all"></rect>
           </g>
 
           <!-- ================================================================
-               圖層 6：O / SW 共用維修孔（單一合併檢修口，可點擊檢視規範）
+               圖層 6A：模式一｜O / SW 共用維修孔（單一合併檢修口，左側標籤框）
                ================================================================ -->
-          <g id="layer-inspection-port">
-            <!-- 維修孔雙層檢修外框 -->
-            <rect id="portOuterBox" x="170" y="254" width="84" height="62" rx="8" fill="#ffffff" fill-opacity="0.92" stroke="#334155" stroke-width="2"></rect>
+          <g id="layer-inspection-port" data-mode="installed">
+            <!-- 維修孔雙層檢修外框 (206, 252, 73x64) -->
+            <rect id="portOuterBox" x="206" y="252" width="73" height="64" rx="8" fill="#ffffff" fill-opacity="0.92" stroke="#334155" stroke-width="2"></rect>
             <!-- 內部可拆式虛線蓋板 -->
-            <rect id="portInnerCover" x="176" y="260" width="72" height="50" rx="5" fill="#f8fafc" stroke="#64748b" stroke-width="1.4" stroke-dasharray="4 3"></rect>
+            <rect id="portInnerCover" x="212" y="258" width="61" height="52" rx="5" fill="#f8fafc" stroke="#64748b" stroke-width="1.4" stroke-dasharray="4 3"></rect>
 
             <!-- 左側鉸鏈刻度 -->
-            <line x1="168" y1="272" x2="173" y2="272" stroke="#334155" stroke-width="2.4" stroke-linecap="round"></line>
-            <line x1="168" y1="298" x2="173" y2="298" stroke="#334155" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="204" y1="271" x2="209" y2="271" stroke="#334155" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="204" y1="297" x2="209" y2="297" stroke="#334155" stroke-width="2.4" stroke-linecap="round"></line>
 
             <!-- 四角固定螺絲 -->
-            <circle cx="180" cy="264" r="2.2" fill="#64748b"></circle>
-            <circle cx="244" cy="264" r="2.2" fill="#64748b"></circle>
-            <circle cx="180" cy="306" r="2.2" fill="#64748b"></circle>
-            <circle cx="244" cy="306" r="2.2" fill="#64748b"></circle>
+            <circle cx="216" cy="262" r="2.2" fill="#64748b"></circle>
+            <circle cx="269" cy="262" r="2.2" fill="#64748b"></circle>
+            <circle cx="216" cy="306" r="2.2" fill="#64748b"></circle>
+            <circle cx="269" cy="306" r="2.2" fill="#64748b"></circle>
 
-            <!-- 穿線橡膠護套環（Grommets）：左側 O 線 (x=195)、右側 SW 線 (x=230) -->
-            <rect x="190" y="251" width="10" height="6" rx="2" fill="#334155"></rect>
-            <rect x="190" y="313" width="10" height="6" rx="2" fill="#334155"></rect>
-            <rect x="225" y="251" width="10" height="6" rx="2" fill="#334155"></rect>
-            <rect x="225" y="313" width="10" height="6" rx="2" fill="#334155"></rect>
+            <!-- 穿線橡膠護套環（Grommets）：左側 O 線 (x=225)、右側 SW 線 (x=260) -->
+            <rect x="220" y="249" width="10" height="6" rx="2" fill="#334155"></rect>
+            <rect x="220" y="313" width="10" height="6" rx="2" fill="#334155"></rect>
+            <rect x="255" y="249" width="10" height="6" rx="2" fill="#334155"></rect>
+            <rect x="255" y="313" width="10" height="6" rx="2" fill="#334155"></rect>
 
             <!-- 重繪穿過維修孔的 O 與 SW 線段，確保線條穿過護套且位於蓋板上方 -->
-            <line id="portWireO" x1="195" y1="254" x2="195" y2="316" stroke="#43A047" stroke-width="3.5" style="opacity: 1;"></line>
-            <line id="portWireSW" x1="230" y1="254" x2="230" y2="316" stroke="#FB8C00" stroke-width="3.5" style="opacity: 1;"></line>
+            <line id="portWireO" x1="225" y1="252" x2="225" y2="316" stroke="#43A047" stroke-width="3.5" style="opacity: 1;"></line>
+            <line id="portWireSW" x1="260" y1="252" x2="260" y2="316" stroke="#FB8C00" stroke-width="3.5" style="opacity: 1;"></line>
 
-            <!-- 維修孔右側說明標籤 -->
-            <g transform="translate(260, 267)">
-              <rect id="portBadgeBg" x="0" y="0" width="98" height="36" rx="7" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.2"></rect>
-              <text x="49" y="15" text-anchor="middle" font-family="sans-serif" font-size="11.5" font-weight="700" fill="#1d4ed8">維修孔 (檢修口)</text>
-              <text x="49" y="29" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="600" fill="#3b82f6">O · SW 共用留線</text>
+            <!-- 維修孔左側說明標籤與水平指示連接線 -->
+            <line x1="188" y1="284" x2="206" y2="284" stroke="#60a5fa" stroke-width="1.6" stroke-dasharray="3 2"></line>
+            <circle cx="206" cy="284" r="2.8" fill="#3b82f6"></circle>
+            <g transform="translate(52, 262)">
+              <rect id="portBadgeBg" x="0" y="0" width="136" height="44" rx="7" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.2"></rect>
+              <text x="68" y="18" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="700" fill="#1d4ed8">維修孔 (檢修口)</text>
+              <text x="68" y="34" text-anchor="middle" font-family="sans-serif" font-size="10.5" font-weight="600" fill="#3b82f6">O · SW 共用留線</text>
             </g>
 
-            <!-- 擴大點擊感應區 -->
-            <rect id="portHitTarget" x="164" y="248" width="198" height="74" rx="10" fill="transparent" style="cursor: pointer;" pointer-events="all"></rect>
+            <!-- 擴大點擊感應區（涵蓋左側標籤與維修孔本體） -->
+            <rect id="portHitTarget" x="48" y="246" width="236" height="76" rx="10" fill="transparent" style="cursor: pointer;" pointer-events="all"></rect>
           </g>
 
           <!-- ================================================================
-               圖層 7：Shelly 1PM Gen4 設備本體（1:1 經典斜切角外殼，SW 下方完全留白）
+               圖層 6B：模式二｜預留線維修孔（O ↔ SW 直通相連，L & N 供電線絕緣封頭預留）
                ================================================================ -->
-          <g id="layer-shelly-device" filter="url(#deviceShadow)">
-            <!-- 280x280 正方斜切角外殼（x: 160..440, y: 350..630） -->
-            <path d="M 174 350 L 426 350 Q 440 350 440 364 L 440 564 L 374 630 L 226 630 L 160 564 L 160 364 Q 160 350 174 350 Z" fill="#ffffff" stroke="#1e293b" stroke-width="3" stroke-linejoin="round"></path>
+          <g id="layer-prewire-port" data-mode="prewire" style="display: none;">
+            <!-- 加寬型預留線維修孔雙層外框 (x: 204..468, y: 252..386) -->
+            <rect id="prewirePortOuterBox" x="204" y="252" width="264" height="134" rx="10" fill="#ffffff" fill-opacity="0.95" stroke="#334155" stroke-width="2.2"></rect>
+            <rect x="210" y="258" width="252" height="122" rx="7" fill="#f8fafc" stroke="#64748b" stroke-width="1.4" stroke-dasharray="4 3"></rect>
+
+            <!-- 左側鉸鏈刻度與四角固定螺絲 -->
+            <line x1="202" y1="292" x2="207" y2="292" stroke="#334155" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="202" y1="346" x2="207" y2="346" stroke="#334155" stroke-width="2.4" stroke-linecap="round"></line>
+            <circle cx="215" cy="263" r="2.2" fill="#64748b"></circle>
+            <circle cx="457" cy="263" r="2.2" fill="#64748b"></circle>
+            <circle cx="215" cy="375" r="2.2" fill="#64748b"></circle>
+            <circle cx="457" cy="375" r="2.2" fill="#64748b"></circle>
+
+            <!-- 頂部四孔穿線橡膠護套環（O=225, SW=260, L=330, N=435） -->
+            <rect x="220" y="249" width="10" height="6" rx="2" fill="#334155"></rect>
+            <rect x="255" y="249" width="10" height="6" rx="2" fill="#334155"></rect>
+            <rect x="325" y="249" width="10" height="6" rx="2" fill="#334155"></rect>
+            <rect x="430" y="249" width="10" height="6" rx="2" fill="#334155"></rect>
+
+            <!-- 維修孔內部線段重繪（確保穿過頂部護套位於蓋板上方） -->
+            <line id="prewirePortLineO" class="step-3-wire" x1="225" y1="252" x2="225" y2="312" stroke="#43A047" stroke-width="3.5" style="transition: none; opacity: 1;"></line>
+            <line id="prewirePortLineSW" class="step-3-wire" x1="260" y1="252" x2="260" y2="312" stroke="#FB8C00" stroke-width="3.5" style="transition: none; opacity: 1;"></line>
+            <line id="prewirePortLineL" class="step-2-wire" x1="330" y1="252" x2="330" y2="312" stroke="#E53935" stroke-width="3.5" style="transition: none; opacity: 1;"></line>
+            <line id="prewirePortLineN" class="step-1-wire" x1="435" y1="252" x2="435" y2="312" stroke="#007AFF" stroke-width="3.5" style="transition: none; opacity: 1;"></line>
+
+            <!-- 內部分區虛線（左側：O ↔ SW 並接區 / 右側：L & N 供電預留區） -->
+            <line x1="292" y1="264" x2="292" y2="374" stroke="#cbd5e1" stroke-width="1.3" stroke-dasharray="3 3"></line>
+
+            <!-- 1. O ↔ SW 快速並接端子（Wago / Splice Connector，於維修孔內直通相連） -->
+            <g id="prewireSpliceConnector" class="step-3-node" style="opacity: 1;">
+              <!-- 透明絕緣外殼 -->
+              <rect x="214" y="309" width="57" height="26" rx="5" fill="#ffffff" stroke="#334155" stroke-width="1.8"></rect>
+              <!-- 雙孔操作撥桿 -->
+              <rect id="spliceLeverO" x="219" y="304" width="12" height="6" rx="1.5" fill="#f97316" stroke="#9a3412" stroke-width="0.9"></rect>
+              <rect id="spliceLeverSW" x="254" y="304" width="12" height="6" rx="1.5" fill="#f97316" stroke="#9a3412" stroke-width="0.9"></rect>
+              <!-- 內部銅排直通導片（連接 x=225 與 x=260） -->
+              <line x1="225" y1="312" x2="225" y2="323" stroke="#43A047" stroke-width="3" stroke-linecap="round"></line>
+              <line x1="260" y1="312" x2="260" y2="323" stroke="#FB8C00" stroke-width="3" stroke-linecap="round"></line>
+              <line x1="223" y1="323" x2="262" y2="323" stroke="#d97706" stroke-width="3.8" stroke-linecap="round"></line>
+              <!-- 標示文字 -->
+              <text x="242.5" y="352" text-anchor="middle" font-family="sans-serif" font-size="11.5" font-weight="800" fill="#15803d">O ↔ SW 直通相連</text>
+              <text x="242.5" y="367" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="600" fill="#64748b">維持壁切開關控燈</text>
+            </g>
+
+            <!-- 2. L 火線獨立絕緣封頭預留（供電給未來 Shelly） -->
+            <g id="prewireCapL" class="step-2-node" style="opacity: 1;">
+              <rect id="capRectL" x="322" y="309" width="16" height="20" rx="4" fill="#fee2e2" stroke="#E53935" stroke-width="1.8"></rect>
+              <line x1="324" y1="315" x2="336" y2="315" stroke="#E53935" stroke-width="1.4"></line>
+              <text id="capTextL" x="330" y="346" text-anchor="middle" font-family="sans-serif" font-size="11.5" font-weight="800" fill="#dc2626">L 預留 (供電)</text>
+              <text x="330" y="361" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="600" fill="#64748b">獨立絕緣封頭</text>
+            </g>
+
+            <!-- 3. N 中性線獨立絕緣封頭預留（供電給未來 Shelly） -->
+            <g id="prewireCapN" class="step-1-node" style="opacity: 1;">
+              <rect id="capRectN" x="427" y="309" width="16" height="20" rx="4" fill="#dbeafe" stroke="#007AFF" stroke-width="1.8"></rect>
+              <line x1="429" y1="315" x2="441" y2="315" stroke="#007AFF" stroke-width="1.4"></line>
+              <text id="capTextN" x="435" y="346" text-anchor="middle" font-family="sans-serif" font-size="11.5" font-weight="800" fill="#0284c7">N 預留 (供電)</text>
+              <text x="435" y="361" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="600" fill="#64748b">獨立絕緣封頭</text>
+            </g>
+
+            <!-- 預留線維修孔左側說明標籤與水平指示連接線 -->
+            <line x1="184" y1="318" x2="204" y2="318" stroke="#60a5fa" stroke-width="1.6" stroke-dasharray="3 2"></line>
+            <circle cx="204" cy="318" r="2.8" fill="#3b82f6"></circle>
+            <g transform="translate(42, 294)">
+              <rect id="prewirePortBadgeBg" x="0" y="0" width="142" height="48" rx="7" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.2"></rect>
+              <text x="71" y="19" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="700" fill="#1d4ed8">維修孔 (預留線盒)</text>
+              <text x="71" y="36" text-anchor="middle" font-family="sans-serif" font-size="10.5" font-weight="600" fill="#3b82f6">O↔SW相連 · L/N預留</text>
+            </g>
+
+            <!-- 擴大點擊感應區（涵蓋左側標籤與加寬型維修孔本體） -->
+            <rect id="prewirePortHitTarget" x="38" y="246" width="434" height="146" rx="12" fill="transparent" style="cursor: pointer;" pointer-events="all"></rect>
+          </g>
+
+          <!-- ================================================================
+               圖層 7A：模式一｜Shelly 1PM Gen4 設備本體（1:1 經典斜切角外殼 280x280，SW 下方留白）
+               ================================================================ -->
+          <g id="layer-shelly-device" data-mode="installed" filter="url(#deviceShadow)">
+            <!-- 280x280 正方斜切角外殼（x: 190..470, y: 355..635） -->
+            <path d="M 204 355 L 456 355 Q 470 355 470 369 L 470 569 L 404 635 L 256 635 L 190 569 L 190 369 Q 190 355 204 355 Z" fill="#ffffff" stroke="#1e293b" stroke-width="3" stroke-linejoin="round"></path>
 
             <!-- 頂部端子排外框 -->
-            <rect x="176" y="364" width="248" height="44" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="2"></rect>
+            <rect x="206" y="368" width="248" height="44" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="2"></rect>
 
-            <!-- 7 顆螺絲端子孔（O, SW, L, L, L, N, N） -->
+            <!-- 7 顆螺絲端子孔（O=225, SW=260, L=295, L=330, L=365, N=400, N=435） -->
             <g stroke="#1e293b" stroke-width="2" fill="#ffffff">
-              <!-- O (x=195) -->
-              <circle cx="195" cy="386" r="11.5"></circle>
-              <line x1="188" y1="393" x2="202" y2="379" stroke="#64748b" stroke-width="1.6"></line>
-              <!-- SW (x=230) -->
-              <circle cx="230" cy="386" r="11.5"></circle>
-              <line x1="223" y1="393" x2="237" y2="379" stroke="#64748b" stroke-width="1.6"></line>
-              <!-- L1 (x=265) -->
-              <circle cx="265" cy="386" r="11.5"></circle>
-              <line x1="258" y1="393" x2="272" y2="379" stroke="#64748b" stroke-width="1.6"></line>
-              <!-- L2 (x=300) -->
-              <circle cx="300" cy="386" r="11.5"></circle>
-              <line x1="293" y1="393" x2="307" y2="379" stroke="#64748b" stroke-width="1.6"></line>
-              <!-- L3 (x=335) -->
-              <circle cx="335" cy="386" r="11.5"></circle>
-              <line x1="328" y1="393" x2="342" y2="379" stroke="#64748b" stroke-width="1.6"></line>
-              <!-- N1 (x=370) -->
-              <circle cx="370" cy="386" r="11.5"></circle>
-              <line x1="363" y1="393" x2="377" y2="379" stroke="#64748b" stroke-width="1.6"></line>
-              <!-- N2 (x=405) -->
-              <circle cx="405" cy="386" r="11.5"></circle>
-              <line x1="398" y1="393" x2="412" y2="379" stroke="#64748b" stroke-width="1.6"></line>
+              <circle cx="225" cy="390" r="11.5"></circle>
+              <line x1="218" y1="397" x2="232" y2="383" stroke="#64748b" stroke-width="1.6"></line>
+              <circle cx="260" cy="390" r="11.5"></circle>
+              <line x1="253" y1="397" x2="267" y2="383" stroke="#64748b" stroke-width="1.6"></line>
+              <circle cx="295" cy="390" r="11.5"></circle>
+              <line x1="288" y1="397" x2="302" y2="383" stroke="#64748b" stroke-width="1.6"></line>
+              <circle cx="330" cy="390" r="11.5"></circle>
+              <line x1="323" y1="397" x2="337" y2="383" stroke="#64748b" stroke-width="1.6"></line>
+              <circle cx="365" cy="390" r="11.5"></circle>
+              <line x1="358" y1="397" x2="372" y2="383" stroke="#64748b" stroke-width="1.6"></line>
+              <circle cx="400" cy="390" r="11.5"></circle>
+              <line x1="393" y1="397" x2="407" y2="383" stroke="#64748b" stroke-width="1.6"></line>
+              <circle cx="435" cy="390" r="11.5"></circle>
+              <line x1="428" y1="397" x2="442" y2="383" stroke="#64748b" stroke-width="1.6"></line>
             </g>
 
             <!-- 端子代號文字（O, SW, L ⊥ x3, N + x2） -->
             <g font-family="sans-serif" font-size="14" font-weight="800" fill="#1e293b" text-anchor="middle">
-              <text x="195" y="426">O</text>
-              <text x="230" y="426">SW</text>
-              <text x="265" y="426">L</text>
-              <text x="300" y="426">L</text>
-              <text x="335" y="426">L</text>
-              <text x="370" y="426">N</text>
-              <text x="405" y="426">N</text>
+              <text x="225" y="430">O</text>
+              <text x="260" y="430">SW</text>
+              <text x="295" y="430">L</text>
+              <text x="330" y="430">L</text>
+              <text x="365" y="430">L</text>
+              <text x="400" y="430">N</text>
+              <text x="435" y="430">N</text>
             </g>
             <g font-family="sans-serif" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">
-              <text x="265" y="443">⊥</text>
-              <text x="300" y="443">⊥</text>
-              <text x="335" y="443">⊥</text>
-              <text x="370" y="443">+</text>
-              <text x="405" y="443">+</text>
+              <text x="295" y="447">⊥</text>
+              <text x="330" y="447">⊥</text>
+              <text x="365" y="447">⊥</text>
+              <text x="400" y="447">+</text>
+              <text x="435" y="447">+</text>
             </g>
 
             <!-- Shelly 紅色品牌飾條與 Gen4 型號標示 -->
-            <rect id="shellyRedBar" x="184" y="456" width="232" height="28" rx="6" fill="#E52521"></rect>
-            <text x="196" y="475" font-family="sans-serif" font-size="14.5" font-weight="800" fill="#ffffff" letter-spacing="0.3">Shelly 1PM Gen4</text>
+            <rect id="shellyRedBar" x="214" y="460" width="232" height="28" rx="6" fill="#E52521"></rect>
+            <text x="226" y="479" font-family="sans-serif" font-size="14.5" font-weight="800" fill="#ffffff" letter-spacing="0.3">Shelly 1PM Gen4</text>
             <!-- 狀態 LED 指示燈 -->
-            <circle id="deviceStatusLed" cx="402" cy="470" r="4.5" fill="#4ade80" stroke="#ffffff" stroke-width="1.2"></circle>
+            <circle id="deviceStatusLed" cx="432" cy="474" r="4.5" fill="#991b1b" stroke="#ffffff" stroke-width="1.2"></circle>
 
-            <!-- 設備內部電路示意框（注意：SW x=230 下方完全不放任何黃色或橘色線條） -->
-            <rect x="184" y="494" width="232" height="94" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"></rect>
+            <!-- 設備內部電路示意框（SW x=260 下方完全留白，無任何黃/橘色線條） -->
+            <rect x="214" y="498" width="232" height="94" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"></rect>
 
             <!-- 內部 O 輸出接點線（連接 O 端子至繼電器靜止接點） -->
-            <path d="M 195 494 L 195 530" fill="none" stroke="#43A047" stroke-width="2.6" stroke-linecap="round" id="internalWireO"></path>
-            <circle cx="195" cy="530" r="3.8" fill="#1e293b"></circle>
+            <path d="M 225 498 L 225 535" fill="none" stroke="#43A047" stroke-width="2.6" stroke-linecap="round" id="internalWireO"></path>
+            <circle cx="225" cy="535" r="3.8" fill="#1e293b"></circle>
 
             <!-- 內部 L 供電與繼電器樞軸線 -->
-            <path d="M 300 494 L 300 530 L 250 530" fill="none" stroke="#E53935" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" id="internalWireL"></path>
-            <path d="M 300 530 L 300 564 L 332 564" fill="none" stroke="#E53935" stroke-width="2" stroke-dasharray="3 3" id="internalBusL"></path>
+            <path d="M 330 498 L 330 535 L 280 535" fill="none" stroke="#E53935" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" id="internalWireL"></path>
+            <path d="M 330 535 L 330 568 L 362 568" fill="none" stroke="#E53935" stroke-width="2" stroke-dasharray="3 3" id="internalBusL"></path>
 
             <!-- 內部 N 中性線供電至控制晶片 -->
-            <path d="M 405 494 L 405 564 L 378 564" fill="none" stroke="#007AFF" stroke-width="2" stroke-dasharray="3 3" id="internalBusN"></path>
+            <path d="M 435 498 L 435 568 L 408 568" fill="none" stroke="#007AFF" stroke-width="2" stroke-dasharray="3 3" id="internalBusN"></path>
 
-            <!-- 內部連動機械繼電器可動接點臂（繞 (250, 530) 旋轉，與外部開關同步閉合/斷開） -->
-            <g id="internalRelayArm" transform="rotate(0 250 530)">
-              <line x1="250" y1="530" x2="195" y2="530" stroke="#1e293b" stroke-width="3.2" stroke-linecap="round"></line>
+            <!-- 內部連動機械繼電器可動接點臂（繞 (280, 535) 旋轉，與外部開關同步閉合/斷開） -->
+            <g id="internalRelayArm" transform="rotate(24 280 535)">
+              <line x1="280" y1="535" x2="225" y2="535" stroke="#1e293b" stroke-width="3.2" stroke-linecap="round"></line>
             </g>
-            <circle cx="250" cy="530" r="3.8" fill="#E53935" id="internalRelayPivot"></circle>
-            <text x="222" y="553" text-anchor="middle" font-family="sans-serif" font-size="10.5" font-weight="700" fill="#475569">內部繼電器</text>
+            <circle cx="280" cy="535" r="3.8" fill="#E53935" id="internalRelayPivot"></circle>
+            <text x="252" y="558" text-anchor="middle" font-family="sans-serif" font-size="10.5" font-weight="700" fill="#475569">內部繼電器</text>
 
             <!-- 內部電源/計量模組方塊 -->
-            <rect x="332" y="548" width="46" height="30" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"></rect>
-            <text x="355" y="567" text-anchor="middle" font-family="sans-serif" font-size="10.5" font-weight="700" fill="#334155">Gen4</text>
+            <rect x="362" y="552" width="46" height="30" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"></rect>
+            <text x="385" y="571" text-anchor="middle" font-family="sans-serif" font-size="10.5" font-weight="700" fill="#334155">Gen4</text>
 
             <!-- 底部安全認證標示 -->
-            <text x="300" y="611" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#64748b" letter-spacing="0.8">16A MAX • 110-240V~ 50/60Hz</text>
+            <text x="330" y="616" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#64748b" letter-spacing="0.8">16A MAX • 110-240V~ 50/60Hz</text>
+          </g>
+
+          <!-- ================================================================
+               圖層 7B：模式二｜未裝設 Shelly 1PM Gen4 預留施工說明框
+               ================================================================ -->
+          <g id="layer-prewire-callout" data-mode="prewire" style="display: none;">
+            <rect x="146" y="420" width="380" height="114" rx="14" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="6 5"></rect>
+            <rect x="218" y="407" width="236" height="24" rx="12" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1"></rect>
+            <text x="336" y="423" text-anchor="middle" font-family="sans-serif" font-size="11.5" font-weight="800" fill="#334155">尚未裝設 Shelly 1PM Gen4（預留狀態）</text>
+
+            <text x="336" y="456" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#0f172a">所有預留線材皆已收容於上方維修孔內</text>
+            <text x="336" y="481" text-anchor="middle" font-family="sans-serif" font-size="11.8" font-weight="500" fill="#475569">• O 與 SW 直接相連：現階段壁切開關可直接控制燈具啟閉</text>
+            <text x="336" y="503" text-anchor="middle" font-family="sans-serif" font-size="11.8" font-weight="500" fill="#475569">• L 與 N 獨立絕緣封頭：預留 15 cm 餘長，日後加裝 Shelly 免重拉線</text>
           </g>
         </svg>
       </div>
 
-      <!-- O / SW 共用維修孔檢修規範說明卡 -->
+      <!-- 維修孔檢修規範說明卡（依模式動態切換說明內容） -->
       <div id="inspectionBanner" class="inspection-banner">
         <div id="inspectionHeader" class="inspection-header">
-          <span class="inspection-title">🔧 維修孔配置：O 輸出線與 SW 控制線共用檢修口</span>
+          <span id="inspectionTitleText" class="inspection-title">🔧 維修孔配置：O 輸出線與 SW 控制線共用檢修口</span>
           <span id="inspectionToggleHint" style="font-size: 12px; font-weight: 700; color: #0284c7;">展開規範 ▾</span>
         </div>
-        <p class="inspection-summary">點擊圖中「維修孔」或此橫幅，檢視 15 cm 預留維護餘長與量測規範。</p>
+        <p id="inspectionSummaryText" class="inspection-summary">點擊圖中「維修孔」或此橫幅，檢視 15 cm 預留維護餘長與量測規範。</p>
         <div class="inspection-details">
           <div class="inspection-grid">
             <div class="inspection-item">
-              <strong>1. 預留維護線長（Service Loop）</strong>
-              O 負載線與 SW 控制線於維修孔內各預留至少 15 cm 緩衝餘長，方便日後抽換燈具或檢修開關。
+              <strong id="inspectionItem1Title">1. 預留維護線長（Service Loop）</strong>
+              <span id="inspectionItem1Body">O 負載線與 SW 控制線於維修孔內各預留至少 15 cm 緩衝餘長，方便日後抽換燈具或檢修開關。</span>
             </div>
             <div class="inspection-item">
-              <strong>2. 雙迴路量測與辨識</strong>
-              左側綠色護套為 <code>O</code> 負載輸出，右側橘色護套為 <code>SW</code> 開關觸發回線，免拆牆面即可量測通斷。
+              <strong id="inspectionItem2Title">2. 雙迴路量測與辨識</strong>
+              <span id="inspectionItem2Body">左側綠色護套為 <code>O</code> 負載輸出，右側橘色護套為 <code>SW</code> 開關觸發回線，免拆牆面即可量測通斷。</span>
             </div>
           </div>
         </div>
@@ -1789,7 +1123,7 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
         <div class="panel-header-row">
           <div>
             <h2 class="panel-title">1. 四步驟電工接線動畫</h2>
-            <p class="panel-desc">依標準電工施工順序逐步演示配線路徑</p>
+            <p id="stepsCardDesc" class="panel-desc">依標準電工施工順序逐步演示配線路徑</p>
           </div>
           <button type="button" id="replayBtn" class="btn-replay">
             <span>↻ 重播動畫</span>
@@ -1798,20 +1132,20 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
 
         <div class="steps-grid">
           <button type="button" class="step-btn" data-step="1">
-            <span class="step-btn-title">1. N 中性線</span>
-            <span class="step-btn-sub">接通 N(+) 與燈具迴路</span>
+            <span id="step1Title" class="step-btn-title">1. N 中性線</span>
+            <span id="step1Sub" class="step-btn-sub">接通 N(+) 與燈具迴路</span>
           </button>
           <button type="button" class="step-btn" data-step="2">
-            <span class="step-btn-title">2. L 火線與跳線弧</span>
-            <span class="step-btn-sub">供電 L(⊥) 並跨 N 入開關</span>
+            <span id="step2Title" class="step-btn-title">2. L 火線與跳線弧</span>
+            <span id="step2Sub" class="step-btn-sub">供電 L(⊥) 並跨 N 入開關</span>
           </button>
-          <button type="button" class="step-btn" data-step="3">
-            <span class="step-btn-title">3. SW 開闔式開關</span>
-            <span class="step-btn-sub">經共用維修孔接入 SW</span>
+          <button type="button" class="step-btn is-active" data-step="3">
+            <span id="step3Title" class="step-btn-title">3. SW 開闔式開關</span>
+            <span id="step3Sub" class="step-btn-sub">經共用維修孔接入 SW</span>
           </button>
-          <button type="button" class="step-btn is-active" data-step="4">
-            <span class="step-btn-title">4. O 負載點亮燈泡</span>
-            <span class="step-btn-sub">經共用維修孔輸出點燈</span>
+          <button type="button" class="step-btn" data-step="4">
+            <span id="step4Title" class="step-btn-title">4. O 負載點亮燈泡</span>
+            <span id="step4Sub" class="step-btn-sub">經共用維修孔輸出點燈</span>
           </button>
         </div>
       </div>
@@ -1825,15 +1159,15 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
 
         <div class="control-stack">
           <!-- 開闔式開關主按鈕 -->
-          <button type="button" id="switchControlBtn" class="switch-action-btn is-closed">
+          <button type="button" id="switchControlBtn" class="switch-action-btn">
             <div class="switch-btn-left">
-              <div class="switch-icon-box" id="switchIconBox">💡</div>
+              <div class="switch-icon-box" id="switchIconBox">⚡</div>
               <div>
-                <span class="switch-btn-label" id="switchBtnLabel">開闔式開關：目前閉合</span>
-                <span class="switch-btn-desc" id="switchBtnDesc">上方 L 經開關導通至 SW，內部繼電器吸合並點亮燈具</span>
+                <span class="switch-btn-label" id="switchBtnLabel">開闔式開關：目前斷開</span>
+                <span class="switch-btn-desc" id="switchBtnDesc">點擊閉合開關，觸發 SW 並吸合內部繼電器</span>
               </div>
             </div>
-            <span class="state-badge" id="switchStateBadge">CLOSED</span>
+            <span class="state-badge" id="switchStateBadge">OPEN</span>
           </button>
 
           <!-- 維修孔檢修規範說明按鈕 -->
@@ -1842,7 +1176,7 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
               <div class="switch-icon-box">🧰</div>
               <div>
                 <span class="switch-btn-label">維修孔檢修規範說明</span>
-                <span class="switch-btn-desc">檢視 O·SW 共用檢修口 15 cm 留線與量測點</span>
+                <span id="portBtnDesc" class="switch-btn-desc">檢視 O·SW 共用檢修口 15 cm 留線與量測點</span>
               </div>
             </div>
             <span class="state-badge" id="portStateBadge">檢視</span>
@@ -1893,6 +1227,7 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
          2. 應用程式狀態與 DOM 參照
          ======================================================================== */
       const state = {
+        diagramMode: 'installed', // 'installed' | 'prewire'
         isSwitchClosed: false,
         isBwMode: false,
         isPulseEnabled: true,
@@ -1902,6 +1237,8 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
       };
 
       const el = {
+        modeInstalledBtn: document.getElementById('modeInstalledBtn'),
+        modePrewireBtn: document.getElementById('modePrewireBtn'),
         circuitStatusPill: document.getElementById('circuitStatusPill'),
         circuitStatusText: document.getElementById('circuitStatusText'),
         switchBladeArm: document.getElementById('switchBladeArm'),
@@ -1919,12 +1256,21 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
         switchBtnDesc: document.getElementById('switchBtnDesc'),
         switchStateBadge: document.getElementById('switchStateBadge'),
         portControlBtn: document.getElementById('portControlBtn'),
+        portBtnDesc: document.getElementById('portBtnDesc'),
         portStateBadge: document.getElementById('portStateBadge'),
         inspectionBanner: document.getElementById('inspectionBanner'),
         inspectionHeader: document.getElementById('inspectionHeader'),
+        inspectionTitleText: document.getElementById('inspectionTitleText'),
+        inspectionSummaryText: document.getElementById('inspectionSummaryText'),
+        inspectionItem1Title: document.getElementById('inspectionItem1Title'),
+        inspectionItem1Body: document.getElementById('inspectionItem1Body'),
+        inspectionItem2Title: document.getElementById('inspectionItem2Title'),
+        inspectionItem2Body: document.getElementById('inspectionItem2Body'),
         inspectionToggleHint: document.getElementById('inspectionToggleHint'),
         portOuterBox: document.getElementById('portOuterBox'),
         portBadgeBg: document.getElementById('portBadgeBg'),
+        prewirePortOuterBox: document.getElementById('prewirePortOuterBox'),
+        prewirePortBadgeBg: document.getElementById('prewirePortBadgeBg'),
         colorModeBtn: document.getElementById('colorModeBtn'),
         colorModeLabel: document.getElementById('colorModeLabel'),
         colorModeBadge: document.getElementById('colorModeBadge'),
@@ -1935,6 +1281,7 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
         stepBtns: document.querySelectorAll('.step-btn'),
         switchHitTarget: document.getElementById('switchHitTarget'),
         portHitTarget: document.getElementById('portHitTarget'),
+        prewirePortHitTarget: document.getElementById('prewirePortHitTarget'),
         exportHtmlBtn: document.getElementById('exportHtmlBtn'),
         exportSvgBtn: document.getElementById('exportSvgBtn'),
         toastWrapper: document.getElementById('toastWrapper')
@@ -1952,16 +1299,17 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
       }
 
       /* ========================================================================
-         3. 同步更新開關、內部繼電器、燈泡與電流脈衝狀態
+         3. 同步更新開關、內部繼電器、燈泡與電流脈衝狀態（支援雙模式）
          ======================================================================== */
       function renderCircuitState() {
         const closed = state.isSwitchClosed;
+        const isPrewire = state.diagramMode === 'prewire';
 
-        // 1. 外部開闔式開關閘片旋轉（0deg 閉合 / -34deg 斷開）
-        el.switchBladeArm.setAttribute('transform', closed ? 'rotate(0 230 202)' : 'rotate(-34 230 202)');
+        // 1. 外部開闔式開關閘片旋轉（0deg 閉合 / -24deg 斷開）
+        el.switchBladeArm.setAttribute('transform', closed ? 'rotate(0 260 218)' : 'rotate(-24 260 218)');
 
         // 2. Shelly 1PM Gen4 內部機械繼電器同步吸合（0deg 閉合 / 24deg 斷開）
-        el.internalRelayArm.setAttribute('transform', closed ? 'rotate(0 250 530)' : 'rotate(24 250 530)');
+        el.internalRelayArm.setAttribute('transform', closed ? 'rotate(0 280 535)' : 'rotate(24 280 535)');
 
         // 3. 畫布開關狀態標籤
         if (closed) {
@@ -1998,19 +1346,27 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
         // 6. 頂部狀態膠囊與右側控制按鈕同步
         if (closed) {
           el.circuitStatusPill.classList.add('is-energized');
-          el.circuitStatusText.textContent = '開關閉合（CLOSED）・內部繼電器吸合・燈具點亮';
+          el.circuitStatusText.textContent = isPrewire
+            ? '開關閉合（CLOSED）・經維修孔 O ↔ SW 直通導通・燈具點亮'
+            : '開關閉合（CLOSED）・內部繼電器吸合・燈具點亮';
           el.switchControlBtn.classList.add('is-closed');
           el.switchIconBox.textContent = '💡';
           el.switchBtnLabel.textContent = '開闔式開關：目前閉合';
-          el.switchBtnDesc.textContent = '上方 L 經開關導通至 SW，內部繼電器吸合並點亮燈具';
+          el.switchBtnDesc.textContent = isPrewire
+            ? '上方 L 經開關導通至 SW，於維修孔直通 O 並點亮燈具'
+            : '上方 L 經開關導通至 SW，內部繼電器吸合並點亮燈具';
           el.switchStateBadge.textContent = 'CLOSED';
         } else {
           el.circuitStatusPill.classList.remove('is-energized');
-          el.circuitStatusText.textContent = '開關斷開（OPEN）・燈具熄滅';
+          el.circuitStatusText.textContent = isPrewire
+            ? '開關斷開（OPEN）・O ↔ SW 直通迴路斷路・燈具熄滅'
+            : '開關斷開（OPEN）・燈具熄滅';
           el.switchControlBtn.classList.remove('is-closed');
           el.switchIconBox.textContent = '⚡';
           el.switchBtnLabel.textContent = '開闔式開關：目前斷開';
-          el.switchBtnDesc.textContent = '點擊閉合開關，觸發 SW 並吸合內部繼電器';
+          el.switchBtnDesc.textContent = isPrewire
+            ? '點擊閉合開關，電流經 SW → 維修孔並接端子 → O 點亮燈具'
+            : '點擊閉合開關，觸發 SW 並吸合內部繼電器';
           el.switchStateBadge.textContent = 'OPEN';
         }
       }
@@ -2025,7 +1381,74 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
       }
 
       /* ========================================================================
-         4. 維修孔檢修規範展開/收合控制
+         4. 接線圖模式切換（已裝設 Shelly vs 未裝設 Shelly 維修孔預留線）
+         ======================================================================== */
+      function setDiagramMode(mode, shouldAnimate = true) {
+        state.diagramMode = mode;
+        const isPrewire = mode === 'prewire';
+
+        // 切換頂部頁籤按鈕高亮
+        el.modeInstalledBtn.classList.toggle('is-active', !isPrewire);
+        el.modeInstalledBtn.setAttribute('aria-selected', String(!isPrewire));
+        el.modePrewireBtn.classList.toggle('is-active', isPrewire);
+        el.modePrewireBtn.setAttribute('aria-selected', String(isPrewire));
+
+        // 切換 SVG 內對應模式群組顯示
+        document.querySelectorAll('#wiringSvg [data-mode="installed"]').forEach((node) => {
+          node.style.display = isPrewire ? 'none' : '';
+        });
+        document.querySelectorAll('#wiringSvg [data-mode="prewire"]').forEach((node) => {
+          node.style.display = isPrewire ? '' : 'none';
+        });
+
+        // 更新四步驟按鈕文字與說明卡文案
+        if (isPrewire) {
+          document.getElementById('stepsCardDesc').textContent = '依預留施工順序演示維修孔並接與供電封頭';
+          document.getElementById('step1Title').textContent = '1. N 預留供電線';
+          document.getElementById('step1Sub').textContent = '接燈具並進維修孔絕緣封頭';
+          document.getElementById('step2Title').textContent = '2. L 火線與預留線';
+          document.getElementById('step2Sub').textContent = '供開關並分接 L 進維修孔封頭';
+          document.getElementById('step3Title').textContent = '3. O ↔ SW 維修孔並接';
+          document.getElementById('step3Sub').textContent = '快速接頭直通維持壁切控燈';
+          document.getElementById('step4Title').textContent = '4. 送電測試點亮燈泡';
+          document.getElementById('step4Sub').textContent = '閉合開關驗證直通迴路點燈';
+
+          el.portBtnDesc.textContent = '檢視 O↔SW 直通並接與 L/N 15 cm 預留封頭規範';
+          el.inspectionTitleText.textContent = '🔧 預留線維修孔配置：O ↔ SW 直通並接・L / N 獨立絕緣預留';
+          el.inspectionSummaryText.textContent = '尚未安裝 Shelly 1PM Gen4 時，於維修孔內並接 O 與 SW 維持壁切控燈，並預留供電線頭。';
+          el.inspectionItem1Title.textContent = '1. O 與 SW 直接相連（維持壁切功能）';
+          el.inspectionItem1Body.innerHTML = '綠色 <code>O</code> 負載線與橘色 <code>SW</code> 開關回線於維修孔內以快速接頭直通並接，壁切開關可直接控燈。';
+          el.inspectionItem2Title.textContent = '2. L 與 N 獨立絕緣封頭（日後免重拉線）';
+          el.inspectionItem2Body.innerHTML = '紅色 <code>L</code> 與藍色 <code>N</code> 各預留 15 cm 餘長並套上絕緣封頭；日後安裝 Shelly 時直接拆帽接入即可。';
+        } else {
+          document.getElementById('stepsCardDesc').textContent = '依標準電工施工順序逐步演示配線路徑';
+          document.getElementById('step1Title').textContent = '1. N 中性線';
+          document.getElementById('step1Sub').textContent = '接通 N(+) 與燈具迴路';
+          document.getElementById('step2Title').textContent = '2. L 火線與跳線弧';
+          document.getElementById('step2Sub').textContent = '供電 L(⊥) 並跨 N 入開關';
+          document.getElementById('step3Title').textContent = '3. SW 開闔式開關';
+          document.getElementById('step3Sub').textContent = '經共用維修孔接入 SW';
+          document.getElementById('step4Title').textContent = '4. O 負載點亮燈泡';
+          document.getElementById('step4Sub').textContent = '經共用維修孔輸出點燈';
+
+          el.portBtnDesc.textContent = '檢視 O·SW 共用檢修口 15 cm 留線與量測點';
+          el.inspectionTitleText.textContent = '🔧 維修孔配置：O 輸出線與 SW 控制線共用檢修口';
+          el.inspectionSummaryText.textContent = '點擊圖中「維修孔」或此橫幅，檢視 15 cm 預留維護餘長與量測規範。';
+          el.inspectionItem1Title.textContent = '1. 預留維護線長（Service Loop）';
+          el.inspectionItem1Body.textContent = 'O 負載線與 SW 控制線於維修孔內各預留至少 15 cm 緩衝餘長，方便日後抽換燈具或檢修開關。';
+          el.inspectionItem2Title.textContent = '2. 雙迴路量測與辨識';
+          el.inspectionItem2Body.innerHTML = '左側綠色護套為 <code>O</code> 負載輸出，右側橘色護套為 <code>SW</code> 開關觸發回線，免拆牆面即可量測通斷。';
+        }
+
+        applyColorMode();
+        renderCircuitState();
+        if (shouldAnimate) {
+          playFullSequence();
+        }
+      }
+
+      /* ========================================================================
+         5. 維修孔檢修規範展開/收合控制
          ======================================================================== */
       function toggleInspectionPort() {
         state.isPortExpanded = !state.isPortExpanded;
@@ -2037,6 +1460,10 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
           el.portOuterBox.setAttribute('stroke-width', '2.5');
           el.portBadgeBg.setAttribute('fill', '#dbeafe');
           el.portBadgeBg.setAttribute('stroke', '#3b82f6');
+          el.prewirePortOuterBox.setAttribute('stroke', '#2563eb');
+          el.prewirePortOuterBox.setAttribute('stroke-width', '2.6');
+          el.prewirePortBadgeBg.setAttribute('fill', '#dbeafe');
+          el.prewirePortBadgeBg.setAttribute('stroke', '#3b82f6');
         } else {
           el.inspectionBanner.classList.remove('is-expanded');
           el.inspectionToggleHint.textContent = '展開規範 ▾';
@@ -2045,92 +1472,129 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
           el.portOuterBox.setAttribute('stroke-width', '2');
           el.portBadgeBg.setAttribute('fill', '#eff6ff');
           el.portBadgeBg.setAttribute('stroke', '#93c5fd');
+          el.prewirePortOuterBox.setAttribute('stroke', '#334155');
+          el.prewirePortOuterBox.setAttribute('stroke-width', '2.2');
+          el.prewirePortBadgeBg.setAttribute('fill', '#eff6ff');
+          el.prewirePortBadgeBg.setAttribute('stroke', '#93c5fd');
         }
       }
 
       /* ========================================================================
-         5. 彩繪教學模式 / 黑白工程線稿模式切換
+         6. 彩繪教學模式 / 黑白工程線稿模式切換
          ======================================================================== */
       function applyColorMode() {
         const bw = state.isBwMode;
-        const wireNMain = document.getElementById('wireNMain');
-        const wireNDevice = document.getElementById('wireNDevice');
+        const nWires = [
+          document.getElementById('wireNMain'),
+          document.getElementById('wireNDevice'),
+          document.getElementById('prewireWireN'),
+          document.getElementById('prewirePortLineN')
+        ];
+        const lWires = [
+          document.getElementById('wireLDevice'),
+          document.getElementById('prewireWireL'),
+          document.getElementById('wireLSwitch'),
+          document.getElementById('prewirePortLineL')
+        ];
+        const swWires = [
+          document.getElementById('wireSW'),
+          document.getElementById('portWireSW'),
+          document.getElementById('prewireWireSW'),
+          document.getElementById('prewirePortLineSW')
+        ];
+        const oWires = [
+          document.getElementById('wireO'),
+          document.getElementById('portWireO'),
+          document.getElementById('prewireWireO'),
+          document.getElementById('prewirePortLineO')
+        ];
+
         const nodeN = document.getElementById('nodeN');
-        const wireLDevice = document.getElementById('wireLDevice');
-        const wireLSwitch = document.getElementById('wireLSwitch');
         const nodeL = document.getElementById('nodeL');
-        const wireSW = document.getElementById('wireSW');
-        const wireO = document.getElementById('wireO');
-        const portWireO = document.getElementById('portWireO');
-        const portWireSW = document.getElementById('portWireSW');
         const labelL = document.getElementById('labelL');
         const labelN = document.getElementById('labelN');
         const shellyRedBar = document.getElementById('shellyRedBar');
         const internalWireO = document.getElementById('internalWireO');
         const internalWireL = document.getElementById('internalWireL');
+        const capRectL = document.getElementById('capRectL');
+        const capTextL = document.getElementById('capTextL');
+        const capRectN = document.getElementById('capRectN');
+        const capTextN = document.getElementById('capTextN');
 
         if (bw) {
           // 黑白工程線稿模式：以實線 / 虛線 / 點劃線區分不同迴路
-          [wireNMain, wireNDevice].forEach((p) => {
+          nWires.forEach((p) => {
             p.setAttribute('stroke', '#1e293b');
             p.setAttribute('stroke-dasharray', '10 5');
           });
           nodeN.setAttribute('fill', '#1e293b');
 
-          [wireLDevice, wireLSwitch].forEach((p) => {
+          lWires.forEach((p) => {
             p.setAttribute('stroke', '#0f172a');
             p.removeAttribute('stroke-dasharray');
           });
           nodeL.setAttribute('fill', '#0f172a');
 
-          wireSW.setAttribute('stroke', '#334155');
-          wireSW.setAttribute('stroke-dasharray', '4 4');
-          portWireSW.setAttribute('stroke', '#334155');
-          portWireSW.setAttribute('stroke-dasharray', '4 4');
+          swWires.forEach((p) => {
+            p.setAttribute('stroke', '#334155');
+            p.setAttribute('stroke-dasharray', '4 4');
+          });
 
-          wireO.setAttribute('stroke', '#0f172a');
-          wireO.setAttribute('stroke-dasharray', '12 4 3 4');
-          portWireO.setAttribute('stroke', '#0f172a');
-          portWireO.setAttribute('stroke-dasharray', '12 4 3 4');
+          oWires.forEach((p) => {
+            p.setAttribute('stroke', '#0f172a');
+            p.setAttribute('stroke-dasharray', '12 4 3 4');
+          });
 
           labelL.setAttribute('fill', '#0f172a');
           labelN.setAttribute('fill', '#0f172a');
           shellyRedBar.setAttribute('fill', '#1e293b');
           internalWireO.setAttribute('stroke', '#1e293b');
           internalWireL.setAttribute('stroke', '#1e293b');
+          capRectL.setAttribute('fill', '#f1f5f9');
+          capRectL.setAttribute('stroke', '#0f172a');
+          capTextL.setAttribute('fill', '#0f172a');
+          capRectN.setAttribute('fill', '#f1f5f9');
+          capRectN.setAttribute('stroke', '#1e293b');
+          capTextN.setAttribute('fill', '#1e293b');
 
           el.colorModeLabel.textContent = '黑白工程線稿模式';
           el.colorModeBadge.textContent = '線稿';
           el.modeLegendTag.textContent = '黑白工程線稿（實線/虛線區分）';
         } else {
           // 彩繪教學模式
-          [wireNMain, wireNDevice].forEach((p) => {
+          nWires.forEach((p) => {
             p.setAttribute('stroke', '#007AFF');
             p.removeAttribute('stroke-dasharray');
           });
           nodeN.setAttribute('fill', '#007AFF');
 
-          [wireLDevice, wireLSwitch].forEach((p) => {
+          lWires.forEach((p) => {
             p.setAttribute('stroke', '#E53935');
             p.removeAttribute('stroke-dasharray');
           });
           nodeL.setAttribute('fill', '#E53935');
 
-          wireSW.setAttribute('stroke', '#FB8C00');
-          wireSW.removeAttribute('stroke-dasharray');
-          portWireSW.setAttribute('stroke', '#FB8C00');
-          portWireSW.removeAttribute('stroke-dasharray');
+          swWires.forEach((p) => {
+            p.setAttribute('stroke', '#FB8C00');
+            p.removeAttribute('stroke-dasharray');
+          });
 
-          wireO.setAttribute('stroke', '#43A047');
-          wireO.removeAttribute('stroke-dasharray');
-          portWireO.setAttribute('stroke', '#43A047');
-          portWireO.removeAttribute('stroke-dasharray');
+          oWires.forEach((p) => {
+            p.setAttribute('stroke', '#43A047');
+            p.removeAttribute('stroke-dasharray');
+          });
 
           labelL.setAttribute('fill', '#E53935');
           labelN.setAttribute('fill', '#007AFF');
           shellyRedBar.setAttribute('fill', '#E52521');
           internalWireO.setAttribute('stroke', '#43A047');
           internalWireL.setAttribute('stroke', '#E53935');
+          capRectL.setAttribute('fill', '#fee2e2');
+          capRectL.setAttribute('stroke', '#E53935');
+          capTextL.setAttribute('fill', '#dc2626');
+          capRectN.setAttribute('fill', '#dbeafe');
+          capRectN.setAttribute('stroke', '#007AFF');
+          capTextN.setAttribute('fill', '#0284c7');
 
           el.colorModeLabel.textContent = '彩繪教學模式';
           el.colorModeBadge.textContent = '彩色';
@@ -2139,7 +1603,7 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
       }
 
       /* ========================================================================
-         6. 四步驟電工接線生長動畫（stroke-dashoffset）
+         7. 四步驟電工接線生長動畫（stroke-dashoffset，支援雙模式）
          ======================================================================== */
       function clearSequenceTimers() {
         state.sequenceTimers.forEach((id) => clearTimeout(id));
@@ -2154,19 +1618,29 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
         });
       }
 
+      function getActiveStepElements(stepNum, selectorClass) {
+        const currentMode = state.diagramMode;
+        return Array.from(document.querySelectorAll(`.${selectorClass}`)).filter((node) => {
+          const nodeMode = node.getAttribute('data-mode');
+          return !nodeMode || nodeMode === currentMode;
+        });
+      }
+
       function animatePathDraw(pathEl, durationMs) {
         if (!pathEl) return;
         const length = pathEl.getTotalLength();
+        if (!length || Number.isNaN(length)) {
+          pathEl.style.opacity = '1';
+          return;
+        }
         pathEl.style.transition = 'none';
         pathEl.style.strokeDasharray = `${length}`;
         pathEl.style.strokeDashoffset = `${length}`;
         pathEl.style.opacity = '1';
-        // 強制瀏覽器重繪以套用起始 offset
         pathEl.getBoundingClientRect();
         pathEl.style.transition = `stroke-dashoffset ${durationMs}ms cubic-bezier(0.25, 0.8, 0.25, 1)`;
         pathEl.style.strokeDashoffset = '0';
 
-        // 動畫結束後還原工程線稿的虛線樣式
         const timer = setTimeout(() => {
           pathEl.style.transition = 'none';
           pathEl.style.strokeDasharray = '';
@@ -2177,36 +1651,32 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
       }
 
       function hideWireGroup(stepNum) {
-        document.querySelectorAll(`.step-${stepNum}-wire`).forEach((p) => {
+        getActiveStepElements(stepNum, `step-${stepNum}-wire`).forEach((p) => {
           p.style.transition = 'none';
           p.style.opacity = '0';
         });
-        document.querySelectorAll(`.step-${stepNum}-node`).forEach((n) => {
+        getActiveStepElements(stepNum, `step-${stepNum}-node`).forEach((n) => {
           n.style.opacity = '0';
         });
-        if (stepNum === 3) {
-          document.getElementById('portWireSW').style.opacity = '0';
-        }
-        if (stepNum === 4) {
-          document.getElementById('portWireO').style.opacity = '0';
+        if (state.diagramMode === 'installed') {
+          if (stepNum === 3) document.getElementById('portWireSW').style.opacity = '0';
+          if (stepNum === 4) document.getElementById('portWireO').style.opacity = '0';
         }
       }
 
       function showWireGroupInstant(stepNum) {
-        document.querySelectorAll(`.step-${stepNum}-wire`).forEach((p) => {
+        getActiveStepElements(stepNum, `step-${stepNum}-wire`).forEach((p) => {
           p.style.transition = 'none';
           p.style.strokeDasharray = '';
           p.style.strokeDashoffset = '';
           p.style.opacity = '1';
         });
-        document.querySelectorAll(`.step-${stepNum}-node`).forEach((n) => {
+        getActiveStepElements(stepNum, `step-${stepNum}-node`).forEach((n) => {
           n.style.opacity = '1';
         });
-        if (stepNum === 3) {
-          document.getElementById('portWireSW').style.opacity = '1';
-        }
-        if (stepNum === 4) {
-          document.getElementById('portWireO').style.opacity = '1';
+        if (state.diagramMode === 'installed') {
+          if (stepNum === 3) document.getElementById('portWireSW').style.opacity = '1';
+          if (stepNum === 4) document.getElementById('portWireO').style.opacity = '1';
         }
         applyColorMode();
       }
@@ -2215,7 +1685,6 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
         clearSequenceTimers();
         setStepButtonActive(stepNum);
 
-        // 步驟 1..stepNum-1 立即顯示，stepNum+1..4 隱藏
         for (let s = 1; s <= 4; s++) {
           if (s < stepNum) {
             showWireGroupInstant(s);
@@ -2228,15 +1697,14 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
           toggleSwitch(false);
         }
 
-        // 執行動畫繪製當前步驟
-        document.querySelectorAll(`.step-${stepNum}-node`).forEach((n) => {
+        getActiveStepElements(stepNum, `step-${stepNum}-node`).forEach((n) => {
           n.style.opacity = '1';
         });
-        document.querySelectorAll(`.step-${stepNum}-wire`).forEach((p) => {
+        getActiveStepElements(stepNum, `step-${stepNum}-wire`).forEach((p) => {
           animatePathDraw(p, 650);
         });
 
-        if (stepNum === 3) {
+        if (state.diagramMode === 'installed' && stepNum === 3) {
           const t = setTimeout(() => {
             document.getElementById('portWireSW').style.opacity = '1';
           }, 260);
@@ -2244,15 +1712,17 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
         }
 
         if (stepNum === 4) {
-          const t1 = setTimeout(() => {
-            document.getElementById('portWireO').style.opacity = '1';
-          }, 220);
-          state.sequenceTimers.push(t1);
+          if (state.diagramMode === 'installed') {
+            const t1 = setTimeout(() => {
+              document.getElementById('portWireO').style.opacity = '1';
+            }, 220);
+            state.sequenceTimers.push(t1);
+          }
 
           if (autoCloseAtEnd) {
             const t2 = setTimeout(() => {
               toggleSwitch(true);
-            }, 720);
+            }, state.diagramMode === 'prewire' ? 320 : 720);
             state.sequenceTimers.push(t2);
           }
         }
@@ -2265,18 +1735,18 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
           hideWireGroup(s);
         }
 
-        const stepInterval = 760;
+        const stepInterval = 740;
         [1, 2, 3, 4].forEach((stepNum, idx) => {
           const timer = setTimeout(() => {
             setStepButtonActive(stepNum);
-            document.querySelectorAll(`.step-${stepNum}-node`).forEach((n) => {
+            getActiveStepElements(stepNum, `step-${stepNum}-node`).forEach((n) => {
               n.style.opacity = '1';
             });
-            document.querySelectorAll(`.step-${stepNum}-wire`).forEach((p) => {
+            getActiveStepElements(stepNum, `step-${stepNum}-wire`).forEach((p) => {
               animatePathDraw(p, 640);
             });
 
-            if (stepNum === 3) {
+            if (state.diagramMode === 'installed' && stepNum === 3) {
               const tSw = setTimeout(() => {
                 document.getElementById('portWireSW').style.opacity = '1';
               }, 250);
@@ -2284,13 +1754,16 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
             }
 
             if (stepNum === 4) {
-              const tO = setTimeout(() => {
-                document.getElementById('portWireO').style.opacity = '1';
-              }, 220);
+              if (state.diagramMode === 'installed') {
+                const tO = setTimeout(() => {
+                  document.getElementById('portWireO').style.opacity = '1';
+                }, 220);
+                state.sequenceTimers.push(tO);
+              }
               const tClose = setTimeout(() => {
                 toggleSwitch(true);
-              }, 700);
-              state.sequenceTimers.push(tO, tClose);
+              }, state.diagramMode === 'prewire' ? 320 : 700);
+              state.sequenceTimers.push(tClose);
             }
           }, idx * stepInterval);
           state.sequenceTimers.push(timer);
@@ -2298,10 +1771,9 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
       }
 
       /* ========================================================================
-         7. 匯出 Notion 純淨互動網頁 (index.html) 與獨立動態 .SVG
+         8. 匯出 Notion 純淨互動網頁 (index.html) 與獨立動態 .SVG
          ======================================================================== */
       function exportNotionCleanHtml() {
-        // 確保匯出前所有導線處於完整顯示狀態
         clearSequenceTimers();
         for (let s = 1; s <= 4; s++) {
           showWireGroupInstant(s);
@@ -2315,7 +1787,7 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
           cloneBody.classList.add('is-embed-mode');
         }
 
-        // 從匯出的 HTML 中徹底移除頂部工具列與整個下載匯出卡片
+        // 從匯出的 HTML 中徹底移除頂部工具列與整個下載匯出卡片（保留雙模式切換與完整互動）
         clone.querySelectorAll('#appHeader, #exportCard, [data-export-ui]').forEach((node) => {
           node.remove();
         });
@@ -2336,7 +1808,7 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
         document.body.removeChild(a);
         URL.revokeObjectURL(downloadUrl);
 
-        showToast('⬇ 已下載純淨互動網頁 index.html（已移除下載區塊，可直接上傳 GitHub Pages）');
+        showToast('⬇ 已下載純淨互動網頁 index.html（含雙模式切換，已移除下載區塊）');
       }
 
       function exportStandaloneSvg() {
@@ -2349,7 +1821,12 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
         const svgClone = svgEl.cloneNode(true);
         svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 
-        // 注入獨立 CSS 動畫樣式，讓匯出的 SVG 單獨開啟或嵌入時也能流動
+        // 僅保留當前選取模式的圖層，移除未啟用模式的隱藏節點
+        const inactiveMode = state.diagramMode === 'installed' ? 'prewire' : 'installed';
+        svgClone.querySelectorAll(`[data-mode="${inactiveMode}"]`).forEach((node) => {
+          node.remove();
+        });
+
         const styleTag = document.createElementNS('http://www.w3.org/2000/svg', 'style');
         styleTag.textContent = `
           @keyframes flowForward { to { stroke-dashoffset: -28; } }
@@ -2365,22 +1842,32 @@ url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMExce
         const downloadUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = downloadUrl;
-        a.download = 'shelly-1pm-gen4-wiring.svg';
+        a.download = state.diagramMode === 'prewire'
+          ? 'shelly-1pm-gen4-prewire-port.svg'
+          : 'shelly-1pm-gen4-wiring.svg';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(downloadUrl);
 
-        showToast('📐 已下載獨立動態向量圖 shelly-1pm-gen4-wiring.svg');
+        showToast(
+          state.diagramMode === 'prewire'
+            ? '📐 已下載「未裝設 Shelly 預留線」獨立動態 .SVG'
+            : '📐 已下載「已裝設 Shelly 1PM Gen4」獨立動態 .SVG'
+        );
       }
 
       /* ========================================================================
-         8. 綁定所有互動事件監聽器
+         9. 綁定所有互動事件監聽器
          ======================================================================== */
+      el.modeInstalledBtn.addEventListener('click', () => setDiagramMode('installed', true));
+      el.modePrewireBtn.addEventListener('click', () => setDiagramMode('prewire', true));
+
       el.switchHitTarget.addEventListener('click', () => toggleSwitch());
       el.switchControlBtn.addEventListener('click', () => toggleSwitch());
 
       el.portHitTarget.addEventListener('click', toggleInspectionPort);
+      el.prewirePortHitTarget.addEventListener('click', toggleInspectionPort);
       el.portControlBtn.addEventListener('click', toggleInspectionPort);
       el.inspectionHeader.addEventListener('click', toggleInspectionPort);
 
