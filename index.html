@@ -1,0 +1,2850 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwNjQ0OTc2MjY2ODEyNjI5NTMxMSIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjX2QwZWQzYzdjNGRhNjhhMGZfaW5kZXguaHRtbC02NjUifSwiZXhwIjoxNzk1MDYwOTAyLCJpYXQiOjE3OTUwNTczMDIsImFsZyI6IlJTMjU2In0.i0H5ztOVhrWGg4BhtUtBMl1r8KlgclFzr4g_8Ds92tFDIQEkp1WQmMijsGn6sZwtBc3KrfDGNWEvbembHUmEWQOkM57CxIgYKplp4tkxktcp3pONG0CPddr1SfifUzR53nbY_ThIl0CltCXoKAtn6QQgQ2t2u62pDzpwEej63wC1_DrEFg3nPp-4vhJxSo9FTtRt9D_dZb4ZU4mnPZE_yGV1HFty8pzlf0O-Fy2zehfPI-MKrI-DMC6SPvthy5slyyV92Toha328WDEiSDfPR6J6PDB_UtZtAI6A6qmyQeqfXJndKdzRi0s-5k3w5NwrDHE40paPKQYj2cw3jCkhLg","c_d0ed3c7c4da68a0f_index.html-665")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shelly 1PM Gen4 互動接線教學與 Notion 嵌入工具</title>
+  <style>
+    /* ==========================================================================
+       1. 全域設計變數與基礎重置（100% 自包含，零外部依賴，確保 Notion 嵌入穩定運作）
+       ========================================================================== */
+    :root {
+      --bg-page: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-sub: #f8fafc;
+      --bg-hover: #f1f5f9;
+      --border-color: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --accent-blue: #007aff;
+      --accent-red: #e53935;
+      --accent-orange: #fb8c00;
+      --accent-green: #43a047;
+      --shelly-red: #e52521;
+      --primary-btn: #0284c7;
+      --primary-btn-hover: #0369a1;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.12);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      background: rgba(15, 23, 42, 0.06);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.92em;
+    }
+
+    /* ==========================================================================
+       2. 頂部導覽列與 Notion 嵌入模式 (?embed=1) 緊湊排版
+       ========================================================================== */
+    .app-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--shelly-red);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
+
+    .brand-title-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .gen4-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #fef2f2;
+      color: var(--shelly-red);
+      border: 1px solid #fecaca;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      transition: background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      background: var(--primary-btn);
+      color: #ffffff;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.18s ease, transform 0.1s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-btn-hover);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    /* ==========================================================================
+       3. 主工作區網格佈局
+       ========================================================================== */
+    .main-container {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (min-width: 1024px) {
+      .main-container {
+        grid-template-columns: 7fr 5fr;
+      }
+    }
+
+    /* ==========================================================================
+       4. Notion 嵌入模式 (?embed=1) 樣式覆寫
+       ========================================================================== */
+    body.is-embed-mode {
+      background: transparent;
+    }
+
+    body.is-embed-mode .app-header,
+    body.is-embed-mode .export-card-section {
+      display: none !important;
+    }
+
+    body.is-embed-mode .main-container {
+      padding: 8px;
+      gap: 12px;
+      max-width: 100%;
+    }
+
+    body.is-embed-mode .panel-card {
+      padding: 14px;
+      border-radius: 14px;
+    }
+
+    .embed-preview-bar {
+      display: none;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 8px 16px;
+      font-size: 12px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    body.is-embed-preview .embed-preview-bar {
+      display: flex;
+    }
+
+    /* ==========================================================================
+       5. 左側 SVG 畫布卡片
+       ========================================================================== */
+    .canvas-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .canvas-card.dark-canvas {
+      background: #0f172a;
+      border-color: #1e293b;
+    }
+
+    .canvas-topbar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .canvas-card.dark-canvas .canvas-topbar {
+      border-bottom-color: #1e293b;
+    }
+
+    .status-indicator-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #94a3b8;
+      flex-shrink: 0;
+    }
+
+    .status-dot.active-sky {
+      background: #0284c7;
+      animation: dotPulse 1.4s infinite;
+    }
+
+    .status-dot.active-green {
+      background: #16a34a;
+      animation: dotPulse 1.4s infinite;
+    }
+
+    .status-dot.standby-amber {
+      background: #f59e0b;
+    }
+
+    @keyframes dotPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.2); }
+    }
+
+    .status-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .canvas-card.dark-canvas .status-text {
+      color: #e2e8f0;
+    }
+
+    .canvas-hint {
+      font-size: 12px;
+      color: #0284c7;
+      font-weight: 600;
+    }
+
+    .svg-stage {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      user-select: none;
+    }
+
+    #shellySvg {
+      width: 100%;
+      height: auto;
+      max-width: 580px;
+      max-height: 640px;
+      display: block;
+    }
+
+    /* ==========================================================================
+       6. SVG 內部動畫關鍵影格與互動元件樣式
+       ========================================================================== */
+    @keyframes flowForward {
+      from { stroke-dashoffset: 32; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .current-flow-active {
+      stroke-dasharray: 6 10;
+      animation: flowForward 0.72s linear infinite;
+    }
+
+    @keyframes bulbPulse {
+      0%, 100% { opacity: 0.85; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+
+    .bulb-rays-active {
+      transform-origin: 145px 155px;
+      animation: bulbPulse 1.5s ease-in-out infinite;
+    }
+
+    .switch-blade {
+      transform-origin: 230px 155px;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .relay-blade {
+      transform-origin: 300px 498px;
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .wire-path {
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease, stroke 0.25s ease;
+    }
+
+    .hatch-group {
+      transition: filter 0.2s ease;
+    }
+
+    .hatch-group:hover {
+      filter: drop-shadow(0 3px 8px rgba(0, 122, 255, 0.26));
+    }
+
+    .hidden-el {
+      display: none !important;
+    }
+
+    /* ==========================================================================
+       7. 維修孔檢修規範卡片與底部圖例列
+       ========================================================================== */
+    .hatch-banner {
+      margin: 0 16px 14px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .hatch-banner.expanded {
+      background: #e0f2fe;
+      border-color: #38bdf8;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.12);
+    }
+
+    .hatch-banner-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .hatch-banner-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #0c4a6e;
+    }
+
+    .hatch-banner-desc {
+      font-size: 12px;
+      color: #0369a1;
+      margin-top: 3px;
+      line-height: 1.55;
+    }
+
+    .hatch-specs-list {
+      margin-top: 6px;
+      padding-left: 16px;
+      font-size: 11.5px;
+      color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .hatch-close-btn {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #0369a1;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.7);
+      flex-shrink: 0;
+    }
+
+    .hatch-close-btn:hover {
+      background: #ffffff;
+    }
+
+    .legend-bar {
+      padding: 11px 16px;
+      background: var(--bg-sub);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .canvas-card.dark-canvas .legend-bar {
+      background: #020617;
+      border-top-color: #1e293b;
+      color: #cbd5e1;
+    }
+
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* ==========================================================================
+       8. 右側控制面板卡片
+       ========================================================================== */
+    .sidebar-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .panel-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-dark {
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #0f172a;
+      color: #ffffff;
+      flex-shrink: 0;
+      transition: background 0.18s ease;
+    }
+
+    .btn-dark:hover {
+      background: #1e293b;
+    }
+
+    /* 步驟導覽卡片 */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .step-card {
+      width: 100%;
+      text-align: left;
+      padding: 11px 12px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border-color);
+      background: #ffffff;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      transition: border-color 0.18s ease, background-color 0.18s ease;
+    }
+
+    .step-card:hover {
+      border-color: #94a3b8;
+    }
+
+    .step-card.active-step {
+      border-color: #0284c7;
+      background: #f0f9ff;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-body {
+      flex: 1;
+    }
+
+    .step-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .step-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .step-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    .step-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* 迴路圖層獨立開關 */
+    .layer-toggles-wrap {
+      padding-top: 10px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .sub-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .layer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .layer-btn {
+      padding: 6px 4px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-align: center;
+      border: 1px solid transparent;
+      transition: opacity 0.2s ease;
+    }
+
+    /* 互動元件控制鈕 */
+    .big-switch-btn {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border-color);
+      background: var(--bg-sub);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .big-switch-btn:hover {
+      border-color: #94a3b8;
+      background: #f1f5f9;
+    }
+
+    .big-switch-btn.is-closed {
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+
+    .big-switch-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .big-switch-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .big-switch-btn.is-closed .big-switch-icon {
+      background: #fef08a;
+    }
+
+    .big-switch-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .big-switch-sub {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .state-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      background: #e2e8f0;
+      color: #334155;
+      flex-shrink: 0;
+    }
+
+    .big-switch-btn.is-closed .state-pill {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .hatch-action-btn {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid #bae6fd;
+      background: #f0f9ff;
+      color: #0c4a6e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      text-align: left;
+      transition: background 0.18s ease;
+    }
+
+    .hatch-action-btn:hover {
+      background: #e0f2fe;
+    }
+
+    /* 視覺模式雙欄切換鈕 */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    @media (min-width: 480px) {
+      .mode-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .mode-toggle-btn {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-sub);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .mode-toggle-btn:hover {
+      background: #f1f5f9;
+    }
+
+    .mini-badge {
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+
+    /* Notion 匯出說明框 */
+    .notion-guide-box {
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .notion-guide-title {
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .notion-steps {
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 11.5px;
+    }
+
+    .export-btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-export-html {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      font-weight: 700;
+      background: var(--primary-btn);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.18s ease;
+    }
+
+    .btn-export-html:hover {
+      background: var(--primary-btn-hover);
+    }
+
+    .export-sub-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* 底部浮動 Toast */
+    .toast-wrapper {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translate(-50%, 12px);
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .toast-wrapper.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .toast-pill {
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 手動預覽 Notion 嵌入模式時的頂部返回條 -->
+  <div class="embed-preview-bar" id="embedPreviewBar">
+    <span>🧩 目前正在預覽 <strong>Notion 嵌入模式 (?embed=1)</strong> — 已自動隱藏匯出工具列並緊湊化排版</span>
+    <button type="button" id="exitEmbedPreviewBtn" class="btn-secondary" style="padding: 4px 10px; font-size: 11.5px;">
+      返回完整編輯模式
+    </button>
+  </div>
+
+  <!-- 頂部導覽列（帶 ?embed=1 時自動隱藏） -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-box">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title-row">
+            <h1 class="brand-title">Shelly 1PM Gen4 互動接線教學與 Notion 嵌入工具</h1>
+            <span class="gen4-pill">Gen4 16A</span>
+          </div>
+          <p class="brand-subtitle">上方 L 幹線直供開關・1:1 斜切角外殼・O/SW 共用維修孔・支援一鍵匯出 Notion 互動網頁</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" id="themeToggleBtn" class="btn-secondary">
+          <span id="themeIcon">🌙</span>
+          <span id="themeLabel">深色展場背景</span>
+        </button>
+
+        <button type="button" id="headerExportHtmlBtn" class="btn-primary">
+          <span>⬇ 下載 Notion 互動網頁 (.HTML)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主工作區 -->
+  <main class="main-container">
+
+    <!-- 左側：互動 SVG 向量電路圖畫布 -->
+    <section>
+      <div id="canvasCard" class="canvas-card">
+        <!-- 畫布頂部即時狀態列 -->
+        <div class="canvas-topbar">
+          <div class="status-indicator-wrap">
+            <span id="liveStatusDot" class="status-dot active-green"></span>
+            <span id="liveStatusText" class="status-text">通電狀態：開闔式開關已閉合，繼電器吸合並點亮燈具</span>
+          </div>
+          <span class="canvas-hint">點擊圖中「開闔式開關」或「維修孔」互動</span>
+        </div>
+
+        <!-- 響應式 SVG 主舞台 (viewBox="0 0 600 660") -->
+        <div class="svg-stage">
+          <svg id="shellySvg" viewBox="0 0 600 660" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- 燈泡與接點發光濾鏡 -->
+              <filter id="bulbGlow" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="8" result="blur"></feGaussianBlur>
+                <feMerge>
+                  <feMergeNode in="blur"></feMergeNode>
+                  <feMergeNode in="SourceGraphic"></feMergeNode>
+                </feMerge>
+              </filter>
+
+              <!-- 燈泡暖黃色放射漸層 -->
+              <radialGradient id="lampWarmGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#FEF08A"></stop>
+                <stop offset="65%" stop-color="#FACC15"></stop>
+                <stop offset="100%" stop-color="#EAB308"></stop>
+              </radialGradient>
+
+              <!-- 導線電流微光濾鏡 -->
+              <filter id="wireGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2.2" result="blur"></feGaussianBlur>
+                <feMerge>
+                  <feMergeNode in="blur"></feMergeNode>
+                  <feMergeNode in="SourceGraphic"></feMergeNode>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- 背景工程網格 -->
+            <g id="svgGridLayer" opacity="0.32">
+              <pattern id="smallGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#CBD5E1" stroke-width="0.6"></path>
+              </pattern>
+              <rect width="600" height="660" fill="url(#smallGrid)"></rect>
+            </g>
+
+            <!-- ============================================================== -->
+            <!-- 1. AC 電源端標示 (110 - 240 V~)                                -->
+            <!-- ============================================================== -->
+            <g id="powerLabelsGroup" fill="#0F172A" font-family="sans-serif">
+              <text x="562" y="51" font-size="20" font-weight="700">L</text>
+              <text x="455" y="75" font-size="14" font-weight="600" fill="#475569">110 - 240 V~</text>
+              <text x="562" y="101" font-size="20" font-weight="700">N</text>
+            </g>
+
+            <!-- ============================================================== -->
+            <!-- 2. 四組接線迴路 (N / L / SW / O)                               -->
+            <!-- ============================================================== -->
+            <g id="layer-wires">
+              <!-- [迴路 1] 上方 N 中性線 (藍色 #007AFF) -->
+              <g id="wire-n" class="circuit-layer">
+                <path id="wire-N-main" class="wire-path" d="M 550 95 L 405 95 L 405 356" fill="none" stroke="#007AFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray: 406; stroke-dashoffset: 0; transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s, stroke 0.25s;"></path>
+                <path id="wire-N-bulb" class="wire-path" d="M 405 95 L 145 95 L 145 137" fill="none" stroke="#007AFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray: 302; stroke-dashoffset: 0; transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s, stroke 0.25s;"></path>
+                <circle id="node-N" cx="405" cy="95" r="4.5" fill="#007AFF" style="opacity: 1;"></circle>
+              </g>
+
+              <!-- [迴路 2] 上方 L 火線幹線 (紅色 #E53935) -->
+              <g id="wire-l" class="circuit-layer">
+                <path id="wire-L-main" class="wire-path" d="M 550 45 L 300 45 L 300 87 A 8 8 0 0 1 300 103 L 300 356" fill="none" stroke="#E53935" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray: 571; stroke-dashoffset: 0; transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s, stroke 0.25s;"></path>
+                <path id="wire-L-sw" class="wire-path" d="M 300 45 L 268 45 L 268 87 A 8 8 0 0 1 268 103 L 268 155" fill="none" stroke="#E53935" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray: 152; stroke-dashoffset: 0; transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s, stroke 0.25s;"></path>
+                <circle id="node-L" cx="300" cy="45" r="4.5" fill="#E53935" style="opacity: 1;"></circle>
+              </g>
+
+              <!-- [迴路 3] SW 控制回線 (橘色 #FB8C00) -->
+              <g id="wire-sw" class="circuit-layer">
+                <path id="wire-SW" class="wire-path" d="M 230 155 L 230 356" fill="none" stroke="#FB8C00" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray: 201; stroke-dashoffset: 0; transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s, stroke 0.25s;"></path>
+              </g>
+
+              <!-- [迴路 4] O 負載輸出線 (綠色 #43A047) -->
+              <g id="wire-o" class="circuit-layer">
+                <path id="wire-O" class="wire-path" d="M 195 356 L 195 200 L 145 200 L 145 173" fill="none" stroke="#43A047" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray: 233; stroke-dashoffset: 0; transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s, stroke 0.25s;"></path>
+              </g>
+            </g>
+
+            <!-- ============================================================== -->
+            <!-- 3. 電流脈衝流動虛線疊層 (閉合通電時顯示)                       -->
+            <!-- ============================================================== -->
+            <g id="layer-current-flow">
+              <g id="flow-N" class="">
+                <path d="M 145 137 L 145 95 L 550 95" fill="none" stroke="#60A5FA" stroke-width="3.8" stroke-linecap="round" class="current-flow-active" filter="url(#wireGlow)"></path>
+                <path d="M 405 356 L 405 95" fill="none" stroke="#60A5FA" stroke-width="3.8" stroke-linecap="round" class="current-flow-active"></path>
+              </g>
+              <g id="flow-L" class="">
+                <path d="M 550 45 L 300 45 L 300 87 A 8 8 0 0 1 300 103 L 300 356" fill="none" stroke="#FCA5A5" stroke-width="3.8" stroke-linecap="round" class="current-flow-active" filter="url(#wireGlow)"></path>
+                <path d="M 300 45 L 268 45 L 268 87 A 8 8 0 0 1 268 103 L 268 155" fill="none" stroke="#FCA5A5" stroke-width="3.8" stroke-linecap="round" class="current-flow-active" filter="url(#wireGlow)"></path>
+              </g>
+              <g id="flow-SW" class="">
+                <path d="M 268 155 L 230 155 L 230 356" fill="none" stroke="#FDBA74" stroke-width="3.8" stroke-linecap="round" class="current-flow-active" filter="url(#wireGlow)"></path>
+              </g>
+              <g id="flow-O" class="">
+                <path d="M 195 356 L 195 200 L 145 200 L 145 173" fill="none" stroke="#86EFAC" stroke-width="3.8" stroke-linecap="round" class="current-flow-active" filter="url(#wireGlow)"></path>
+              </g>
+            </g>
+
+            <!-- ============================================================== -->
+            <!-- 4. Shelly 1PM Gen4 經典 1:1 斜切角外殼 (280x280)               -->
+            <!--    x=160..440, y=330..610                                      -->
+            <!-- ============================================================== -->
+            <g id="shelly-1pm-gen4">
+              <!-- 主外殼：280x280 正方斜切角造型 -->
+              <path id="housingBody" d="M 160 344 A 14 14 0 0 1 174 330 L 426 330 A 14 14 0 0 1 440 344 L 440 535 L 365 610 L 235 610 L 160 535 Z" fill="#FFFFFF" stroke="#0F172A" stroke-width="3" stroke-linejoin="round"></path>
+
+              <!-- Shelly 標誌性紅色頂部飾條 (#E52521) -->
+              <path id="shellyRedAccent" d="M 161.5 344 A 12.5 12.5 0 0 1 174 331.5 L 426 331.5 A 12.5 12.5 0 0 1 438.5 344 L 438.5 345 L 161.5 345 Z" fill="#E52521"></path>
+
+              <!-- 淺灰螺絲端子排 (x=175..425, y=344..390) -->
+              <rect id="terminalBox" x="175" y="344" width="250" height="46" rx="5" fill="#E2E8F0" stroke="#0F172A" stroke-width="2"></rect>
+
+              <!-- 7 個圓孔端子：O、SW、L、L、L、N、N -->
+              <g id="terminalCircles" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.2">
+                <circle cx="195" cy="367" r="11"></circle>
+                <circle cx="230" cy="367" r="11"></circle>
+                <circle cx="265" cy="367" r="11"></circle>
+                <circle cx="300" cy="367" r="11"></circle>
+                <circle cx="335" cy="367" r="11"></circle>
+                <circle cx="370" cy="367" r="11"></circle>
+                <circle cx="405" cy="367" r="11"></circle>
+              </g>
+
+              <!-- 端子代號與內部並聯符號：O, SW, L(⊥)×3, N(+)×2 -->
+              <g id="terminalLabels" fill="#0F172A" font-family="monospace" font-size="15" font-weight="700" text-anchor="middle">
+                <text x="195" y="408">O</text>
+                <text x="230" y="408">SW</text>
+                <text x="265" y="408">L</text>
+                <text x="300" y="408">L</text>
+                <text x="335" y="408">L</text>
+                <text x="370" y="408">N</text>
+                <text x="405" y="408">N</text>
+
+                <g stroke="#0F172A" stroke-width="2" stroke-linecap="round">
+                  <!-- ⊥ 1 -->
+                  <line x1="265" y1="418" x2="265" y2="428"></line>
+                  <line x1="259" y1="428" x2="271" y2="428"></line>
+                  <!-- ⊥ 2 -->
+                  <line x1="300" y1="418" x2="300" y2="428"></line>
+                  <line x1="294" y1="428" x2="306" y2="428"></line>
+                  <!-- ⊥ 3 -->
+                  <line x1="335" y1="418" x2="335" y2="428"></line>
+                  <line x1="329" y1="428" x2="341" y2="428"></line>
+                  <!-- + 1 -->
+                  <line x1="370" y1="419" x2="370" y2="429"></line>
+                  <line x1="365" y1="424" x2="375" y2="424"></line>
+                  <!-- + 2 -->
+                  <line x1="405" y1="419" x2="405" y2="429"></line>
+                  <line x1="400" y1="424" x2="410" y2="424"></line>
+                </g>
+              </g>
+
+              <!-- 內部機械連動繼電器接點與 Shelly 1PM Gen4 銘牌 (SW 下方已保持乾淨無黃色虛線) -->
+              <g id="internalSchematicGroup">
+                <rect id="internalBoxFrame" x="178" y="442" width="244" height="80" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3"></rect>
+
+                <!-- 內部匯流排虛線 -->
+                <path id="internalBusL" d="M 265 442 L 265 456 L 335 456 L 335 442 M 300 442 L 300 498" fill="none" stroke="#E53935" stroke-width="1.6" stroke-dasharray="3 3" opacity="0.65"></path>
+                <path id="internalBusN" d="M 370 442 L 370 456 L 405 456 L 405 442" fill="none" stroke="#007AFF" stroke-width="1.6" stroke-dasharray="3 3" opacity="0.65"></path>
+                <path id="internalBusO" d="M 195 442 L 195 498 L 242 498" fill="none" stroke="#43A047" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.7"></path>
+
+                <!-- 內部機械連動繼電器接點 (L=300,498 -> O=242,498) -->
+                <circle id="relayDotO" cx="242" cy="498" r="3.8" fill="#43A047"></circle>
+                <circle id="relayDotL" cx="300" cy="498" r="3.8" fill="#E53935"></circle>
+                <line id="internalRelayBlade" class="relay-blade" x1="300" y1="498" x2="245" y2="476" stroke="#0F172A" stroke-width="2.8" stroke-linecap="round" style="transform: rotate(-21.8deg);"></line>
+
+                <!-- 繼電器狀態框 -->
+                <rect x="332" y="472" width="76" height="36" rx="6" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.2"></rect>
+                <text x="370" y="487" font-size="9.5" font-weight="700" fill="#475569" text-anchor="middle" font-family="monospace">RELAY 16A</text>
+                <text id="relayStateSvgLabel" x="370" y="501" font-size="9.5" font-weight="700" fill="#16A34A" text-anchor="middle" font-family="sans-serif">吸合 ON</text>
+
+                <!-- Shelly 1PM Gen4 型號標示與狀態 LED 指示燈 -->
+                <rect id="gen4BadgeBox" x="220" y="532" width="160" height="58" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.4"></rect>
+                <rect id="gen4RedPill" x="228" y="541" width="4" height="40" rx="2" fill="#E52521"></rect>
+                <circle id="deviceLedIndicator" cx="366" cy="548" r="4.5" fill="#22C55E" stroke="#15803D" stroke-width="1"></circle>
+                <text id="gen4TitleText" x="240" y="553" font-size="13" font-weight="700" fill="#0F172A" font-family="sans-serif">Shelly 1PM Gen4</text>
+                <text id="gen4ProtoText" x="240" y="568" font-size="8.2" font-weight="600" fill="#64748B" font-family="monospace">Wi-Fi • Matter • Zigbee • 16A</text>
+                <text id="gen4SubNote" x="240" y="581" font-size="8.5" font-weight="600" fill="#94A3B8" font-family="sans-serif">單迴路智慧計量繼電器</text>
+              </g>
+            </g>
+
+            <!-- ============================================================== -->
+            <!-- 5. 單一共用維修孔 (O 輸出線 x=195 與 SW 控制線 x=230 共用)      -->
+            <!-- ============================================================== -->
+            <g id="combined-inspection-port" class="hatch-group" style="cursor: pointer;">
+              <!-- 雙層檢修外框 -->
+              <rect id="hatchOuter" x="176" y="236" width="74" height="62" rx="9" fill="#FFFFFF" fill-opacity="0.94" stroke="#0F172A" stroke-width="2"></rect>
+              <!-- 虛線可拆式檢修蓋板 -->
+              <rect id="hatchInner" x="182" y="242" width="62" height="50" rx="6" fill="#F8FAFC" stroke="#64748B" stroke-width="1.3" stroke-dasharray="4 3"></rect>
+
+              <!-- 四角固定螺絲 -->
+              <circle cx="187" cy="247" r="2" fill="#64748B"></circle>
+              <circle cx="239" cy="247" r="2" fill="#64748B"></circle>
+              <circle cx="187" cy="287" r="2" fill="#64748B"></circle>
+              <circle cx="239" cy="287" r="2" fill="#64748B"></circle>
+
+              <!-- 左側鉸鏈刻度 -->
+              <line x1="176" y1="254" x2="181" y2="254" stroke="#0F172A" stroke-width="2"></line>
+              <line x1="176" y1="280" x2="181" y2="280" stroke="#0F172A" stroke-width="2"></line>
+
+              <!-- 箱內穿過的 O 線 (x=195) 與 SW 線 (x=230) -->
+              <line id="hatchWireO" x1="195" y1="236" x2="195" y2="298" stroke="#43A047" stroke-width="3.2"></line>
+              <line id="hatchWireSW" x1="230" y1="236" x2="230" y2="298" stroke="#FB8C00" stroke-width="3.2"></line>
+
+              <!-- 上下四個絕緣穿線護套孔 (Grommets) -->
+              <rect x="190" y="233" width="10" height="6" rx="2" fill="#334155"></rect>
+              <rect x="190" y="295" width="10" height="6" rx="2" fill="#334155"></rect>
+              <rect x="225" y="233" width="10" height="6" rx="2" fill="#334155"></rect>
+              <rect x="225" y="295" width="10" height="6" rx="2" fill="#334155"></rect>
+
+              <!-- 左側標註標籤：維修孔 (O·SW 共用) -->
+              <g id="hatchLabelGroup">
+                <rect x="52" y="246" width="114" height="42" rx="7" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.3"></rect>
+                <line x1="166" y1="267" x2="176" y2="267" stroke="#0284C7" stroke-width="1.5" stroke-dasharray="2 2"></line>
+                <text x="109" y="263" font-size="11.5" font-weight="700" fill="#0369A1" text-anchor="middle" font-family="sans-serif">維修孔</text>
+                <text x="109" y="279" font-size="9.5" font-weight="600" fill="#0284C7" text-anchor="middle" font-family="monospace">O·SW 共用檢修口</text>
+              </g>
+
+              <!-- 高靈敏度透明點擊熱區 -->
+              <rect x="50" y="232" width="204" height="70" fill="transparent" pointer-events="all"></rect>
+            </g>
+
+            <!-- ============================================================== -->
+            <!-- 6. 開闔式開關 (Hinged Blade Switch)                             -->
+            <!--    轉軸 (230, 155) 接 SW 橘線；固定夾座 (268, 155) 接上方 L 紅線 -->
+            <!-- ============================================================== -->
+            <g id="hinged-blade-switch" style="cursor: pointer;">
+              <!-- 開關底座背景框 -->
+              <rect id="switchHousingPlate" x="212" y="116" width="74" height="56" rx="8" fill="#FFFFFF" fill-opacity="0.78" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="3 2"></rect>
+
+              <!-- 開闔虛線運動軌跡弧 -->
+              <path d="M 266 155 A 36 36 0 0 0 258 132" fill="none" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="3 3"></path>
+
+              <!-- 右側固定夾座 (268, 155) 連接上方 L 紅線 -->
+              <g id="switchContactJaw">
+                <path d="M 263 149 L 273 149 L 273 161 L 263 161" fill="none" stroke="#E53935" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                <circle id="switchJawDot" cx="268" cy="155" r="4" fill="#E53935" filter="url(#bulbGlow)"></circle>
+              </g>
+
+              <!-- 可動閘刀片 (繞 230, 155 旋轉；初始 -38deg 斷開，閉合 0deg) -->
+              <g id="switchBlade" class="switch-blade" style="transform: rotate(0deg);">
+                <line x1="230" y1="155" x2="269" y2="155" stroke="#FB8C00" stroke-width="3.6" stroke-linecap="round"></line>
+                <!-- 絕緣撥柄頭 -->
+                <rect x="263" y="149" width="11" height="12" rx="3" fill="#E53935"></rect>
+              </g>
+
+              <!-- 左側金屬轉軸鉸鏈 (230, 155) 連接下方 SW 橘線 -->
+              <circle id="switchPivotOuter" cx="230" cy="155" r="5.5" fill="#FFFFFF" stroke="#FB8C00" stroke-width="2.8"></circle>
+              <circle cx="230" cy="155" r="2" fill="#0F172A"></circle>
+
+              <!-- 開闔狀態徽章 -->
+              <g id="switchBadge">
+                <rect x="210" y="177" width="78" height="20" rx="5" fill="#DCFCE7" stroke="#86EFAC" stroke-width="1.2"></rect>
+                <text id="switchBadgeText" x="249" y="191" font-size="10" font-weight="700" fill="#15803D" text-anchor="middle" font-family="sans-serif">閉合 CLOSED</text>
+              </g>
+
+              <!-- 高靈敏度透明點擊熱區 -->
+              <rect x="206" y="114" width="86" height="86" fill="transparent" pointer-events="all"></rect>
+            </g>
+
+            <!-- ============================================================== -->
+            <!-- 7. 燈泡符號 (⊗ 中心 145, 155, r=18，不顯示負載瓦數文字)          -->
+            <!-- ============================================================== -->
+            <g id="lamp-load">
+              <!-- 暖黃色光芒射線 (閉合通電時顯示) -->
+              <g id="bulbRays" class="bulb-rays-active" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round">
+                <line x1="145" y1="124" x2="145" y2="130"></line>
+                <line x1="114" y1="155" x2="120" y2="155"></line>
+                <line x1="176" y1="155" x2="170" y2="155"></line>
+                <line x1="123" y1="133" x2="127" y2="137"></line>
+                <line x1="167" y1="133" x2="163" y2="137"></line>
+                <line x1="123" y1="177" x2="127" y2="173"></line>
+                <line x1="167" y1="177" x2="163" y2="173"></line>
+              </g>
+
+              <!-- 燈泡外圓 -->
+              <circle id="bulbCircle" cx="145" cy="155" r="18" fill="url(#lampWarmGrad)" stroke="#0F172A" stroke-width="2.5" filter="url(#bulbGlow)"></circle>
+              <!-- 燈泡內部 X 叉線 -->
+              <line id="bulbCross1" x1="132.3" y1="142.3" x2="157.7" y2="167.7" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round"></line>
+              <line id="bulbCross2" x1="157.7" y1="142.3" x2="132.3" y2="167.7" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round"></line>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 技術檢修規範展開卡片（與點擊 SVG 共用維修孔同步） -->
+        <div id="hatchInfoBanner" class="hatch-banner">
+          <div class="hatch-banner-left">
+            <span id="hatchInfoIcon" style="font-size: 16px; line-height: 1.2;">🛠️</span>
+            <div>
+              <div id="hatchInfoTitle" class="hatch-banner-title">維修孔配置：O 輸出線與 SW 控制線共用檢修口</div>
+              <div id="hatchInfoDesc" class="hatch-banner-desc">
+                點擊圖中「<strong>維修孔 (O·SW 共用檢修口)</strong>」或右側檢修按鈕，展開 15 cm 維護餘長與量測規範。
+              </div>
+              <ul id="hatchSpecsList" class="hatch-specs-list hidden-el">
+                <li><strong>預留維護餘長：</strong>雙迴路於檢修口箱內各預留 <code>15 cm</code> 維修餘長（Service Loop），便於抽換或重新壓接端子。</li>
+                <li><strong>不停電／斷電量測點：</strong>開啟虛線蓋板後，可直接以三用電錶量測 <code>O</code> 端輸出電壓與 <code>SW</code> 開關觸發信號，無需拆卸 Shelly 本體。</li>
+                <li><strong>拉線與護套規範：</strong>綠色 <code>O</code> 線走左側護套孔、橘色 <code>SW</code> 線走右側護套孔，穿線時避免銳角折彎並確認護套卡緊防割傷絕緣層。</li>
+              </ul>
+            </div>
+          </div>
+          <button type="button" id="closeHatchInfoBtn" class="hatch-close-btn hidden-el">收合</button>
+        </div>
+
+        <!-- 底部導線圖例列（黑白工程線稿模式下自動顯示線型區分） -->
+        <div class="legend-bar">
+          <div class="legend-items" id="legendItems">
+            <span class="legend-item">
+              <span class="legend-dot" style="background: #007AFF;"></span>
+              <span id="legN">N 中性線 (藍)</span>
+            </span>
+            <span class="legend-item">
+              <span class="legend-dot" style="background: #E53935;"></span>
+              <span id="legL">L 火線與開關供電 (紅)</span>
+            </span>
+            <span class="legend-item">
+              <span class="legend-dot" style="background: #FB8C00;"></span>
+              <span id="legSW">SW 控制回線 (橘)</span>
+            </span>
+            <span class="legend-item">
+              <span class="legend-dot" style="background: #43A047;"></span>
+              <span id="legO">O 輸出線 (綠)</span>
+            </span>
+          </div>
+          <span id="legendModeNote" style="font-size: 11px; opacity: 0.8;">彩繪教學模式</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右側：步驟導覽、互動控制與 Notion 匯出面板 -->
+    <aside class="sidebar-col">
+
+      <!-- 卡片 1：接線步驟導覽與圖層控制 -->
+      <div class="panel-card">
+        <div class="panel-header-row">
+          <div>
+            <h2 class="panel-title">1. 接線步驟導覽與自動播放</h2>
+            <p class="panel-desc">點擊任一步驟檢視該段走線，或自動演示完整接線</p>
+          </div>
+          <button type="button" id="playSequenceBtn" class="btn-dark">▶ 播放完整動畫</button>
+        </div>
+
+        <div class="steps-list">
+          <button type="button" data-step="1" class="step-card">
+            <span class="step-num" style="background: #e0f2fe; color: #0369a1;">1</span>
+            <div class="step-body">
+              <div class="step-top">
+                <span class="step-name">步驟 1：接通上方 N 中性線</span>
+                <span class="step-tag" style="background: #e0f2fe; color: #0369a1;">藍色 #007AFF</span>
+              </div>
+              <p class="step-text">電源 N 接至最右側 <code>N(+)</code> 端子，主線繼續向左連至燈泡頂端。</p>
+            </div>
+          </button>
+
+          <button type="button" data-step="2" class="step-card">
+            <span class="step-num" style="background: #fee2e2; color: #b91c1c;">2</span>
+            <div class="step-body">
+              <div class="step-top">
+                <span class="step-name">步驟 2：接通上方 L 火線與開關供電</span>
+                <span class="step-tag" style="background: #fee2e2; color: #b91c1c;">紅色 #E53935</span>
+              </div>
+              <p class="step-text">L 幹線分接至中間 <code>L(⊥)</code> 端子，並向左繪製跳線弧跨過 N 線直入開關固定夾座。</p>
+            </div>
+          </button>
+
+          <button type="button" data-step="3" class="step-card">
+            <span class="step-num" style="background: #ffedd5; color: #c2410c;">3</span>
+            <div class="step-body">
+              <div class="step-top">
+                <span class="step-name">步驟 3：穿過維修孔接 SW 控制回線</span>
+                <span class="step-tag" style="background: #ffedd5; color: #c2410c;">橘色 #FB8C00</span>
+              </div>
+              <p class="step-text">從開闔式開關金屬轉軸垂直向下，穿過共用維修孔右側護套孔接入 <code>SW</code> 端子。</p>
+            </div>
+          </button>
+
+          <button type="button" data-step="4" class="step-card active-step">
+            <span class="step-num" style="background: #dcfce7; color: #15803d;">4</span>
+            <div class="step-body">
+              <div class="step-top">
+                <span class="step-name">步驟 4：穿過維修孔接 O 輸出線與送電</span>
+                <span class="step-tag" style="background: #dcfce7; color: #15803d;">綠色 #43A047</span>
+              </div>
+              <p class="step-text">從 <code>O</code> 端子穿過共用維修孔左側護套孔連至燈具底端，閉合開關即可吸合繼電器並點亮燈具！</p>
+            </div>
+          </button>
+        </div>
+
+        <div class="layer-toggles-wrap">
+          <div class="sub-label">迴路圖層獨立開關</div>
+          <div class="layer-grid">
+            <button type="button" data-layer="N" class="layer-btn" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">👁 N 藍線</button>
+            <button type="button" data-layer="L" class="layer-btn" style="background: #fee2e2; color: #b91c1c; border-color: #fecaca;">👁 L 紅線</button>
+            <button type="button" data-layer="SW" class="layer-btn" style="background: #ffedd5; color: #c2410c; border-color: #fed7aa;">👁 SW 橘線</button>
+            <button type="button" data-layer="O" class="layer-btn" style="background: #dcfce7; color: #15803d; border-color: #bbf7d0;">👁 O 綠線</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 卡片 2：互動元件控制與視覺模式切換 -->
+      <div class="panel-card">
+        <div>
+          <h2 class="panel-title">2. 互動元件控制與視覺模式</h2>
+          <p class="panel-desc">與畫布上的開關及維修孔完全同步，支援工程線稿列印切換</p>
+        </div>
+
+        <!-- 開闔式開關狀態切換按鈕 -->
+        <button type="button" id="bigSwitchToggleBtn" class="big-switch-btn is-closed">
+          <div class="big-switch-left">
+            <div class="big-switch-icon">💡</div>
+            <div>
+              <div id="bigSwitchTitle" class="big-switch-title">開闔式開關：目前閉合</div>
+              <div id="bigSwitchSub" class="big-switch-sub">上方 L 經開關導通至 SW，內部繼電器吸合並點亮燈具</div>
+            </div>
+          </div>
+          <span id="bigSwitchPill" class="state-pill">CLOSED</span>
+        </button>
+
+        <!-- 維修孔檢修規範按鈕 -->
+        <button type="button" id="inspectHatchBtn" class="hatch-action-btn">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">🧰</span>
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">維修孔檢修規範說明</div>
+              <div style="font-size: 11px; opacity: 0.85;">展開 O·SW 共用檢修口 15 cm 留線、量測點與拉線注意事項</div>
+            </div>
+          </div>
+          <span id="inspectHatchStatus" style="font-size: 11.5px; font-weight: 700; flex-shrink: 0;">檢視 ▸</span>
+        </button>
+
+        <!-- 顯示模式與電流動畫雙欄切換 -->
+        <div class="mode-grid">
+          <button type="button" id="lineArtToggleBtn" class="mode-toggle-btn">
+            <span><span id="lineArtIcon">🎨</span> <span id="lineArtLabel">彩繪教學模式</span></span>
+            <span id="lineArtBadge" class="mini-badge" style="background: #e0f2fe; color: #0369a1;">彩色</span>
+          </button>
+
+          <button type="button" id="flowAnimToggleBtn" class="mode-toggle-btn">
+            <span>⚡ 電流流動動畫</span>
+            <span id="flowAnimBadge" class="mini-badge" style="background: #dcfce7; color: #15803d;">開啟</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 卡片 3：雙格式匯出與 Notion 嵌入指南（帶 ?embed=1 時自動隱藏） -->
+      <div class="panel-card export-card-section">
+        <div>
+          <h2 class="panel-title">3. 匯出 Notion 互動網頁與動態 SVG</h2>
+          <p class="panel-desc">匯出零外部依賴的自包含 HTML，上傳靜態託管後即可用 Notion /embed 互動</p>
+        </div>
+
+        <div class="export-btn-stack">
+          <!-- 主要按鈕：下載 Notion 互動網頁 (.HTML) -->
+          <button type="button" id="exportHtmlBtn" class="btn-export-html">
+            <span>⬇ 下載 Notion 互動網頁 (.HTML)</span>
+          </button>
+
+          <!-- 次要按鈕：下載獨立動態 .SVG 與預覽嵌入模式 -->
+          <div class="export-sub-row">
+            <button type="button" id="exportSvgBtn" class="btn-secondary" style="justify-content: center;">
+              <span>📐 下載獨立動態 .SVG</span>
+            </button>
+            <button type="button" id="previewEmbedBtn" class="btn-secondary" style="justify-content: center;">
+              <span>🧩 預覽 ?embed=1 排版</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="notion-guide-box">
+          <div class="notion-guide-title">
+            <span>📌 嵌入 Notion 頁面 3 步驟</span>
+            <code>?embed=1</code>
+          </div>
+          <ol class="notion-steps">
+            <li>點擊上方「<strong>下載 Notion 互動網頁 (.HTML)</strong>」取得 <code>shelly-1pm-gen4-interactive.html</code>。</li>
+            <li>將檔案拖曳上傳至 <strong>Netlify Drop</strong>、<strong>GitHub Pages</strong> 或 <strong>Cloudflare Pages</strong> 取得公開網址。</li>
+            <li>在 Notion 頁面輸入 <code>/embed</code>，貼上網址（建議在網址後方加上 <code>?embed=1</code> 啟用純淨緊湊排版）。</li>
+          </ol>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- 底部浮動提示訊息 -->
+  <div id="toastWrapper" class="toast-wrapper">
+    <div id="toastText" class="toast-pill">▶ 正在依序演示 Shelly 1PM Gen4 四步驟接線流程</div>
+  </div>
+
+  <script>
+    /**
+     * Shelly 1PM Gen4 互動接線教學與 Notion 嵌入工具
+     * 完全原生 JavaScript 實作，無外部函式庫依賴，支援 ?embed=1 與自包含 HTML / SVG 匯出
+     */
+    (function initShellyWiringApp() {
+      const state = {
+        isDark: false,
+        isMonochrome: false,
+        flowEnabled: true,
+        switchClosed: false,
+        hatchFocused: false,
+        currentStep: 4,
+        sequenceTimers: [],
+        visibleLayers: { N: true, L: true, SW: true, O: true }
+      };
+
+      // 檢測 URL 是否帶有 ?embed=1 參數
+      const urlParams = new URLSearchParams(window.location.search);
+      const isTrueEmbed = urlParams.get('embed') === '1';
+      if (isTrueEmbed) {
+        document.body.classList.add('is-embed-mode');
+      }
+
+      // 取得主要 DOM 元素參照
+      const canvasCard = document.getElementById('canvasCard');
+      const liveStatusDot = document.getElementById('liveStatusDot');
+      const liveStatusText = document.getElementById('liveStatusText');
+
+      const housingBody = document.getElementById('housingBody');
+      const shellyRedAccent = document.getElementById('shellyRedAccent');
+      const terminalBox = document.getElementById('terminalBox');
+      const terminalCircles = document.getElementById('terminalCircles');
+      const terminalLabels = document.getElementById('terminalLabels');
+      const powerLabelsGroup = document.getElementById('powerLabelsGroup');
+      const internalRelayBlade = document.getElementById('internalRelayBlade');
+      const relayStateSvgLabel = document.getElementById('relayStateSvgLabel');
+      const deviceLedIndicator = document.getElementById('deviceLedIndicator');
+
+      const wires = {
+        N_main: document.getElementById('wire-N-main'),
+        N_bulb: document.getElementById('wire-N-bulb'),
+        L_main: document.getElementById('wire-L-main'),
+        L_sw: document.getElementById('wire-L-sw'),
+        SW: document.getElementById('wire-SW'),
+        O: document.getElementById('wire-O')
+      };
+      const nodeN = document.getElementById('node-N');
+      const nodeL = document.getElementById('node-L');
+
+      // 計算每條導線的精準長度以支援繪製動畫
+      const wireLengths = {};
+      Object.keys(wires).forEach((key) => {
+        const len = Math.ceil(wires[key].getTotalLength());
+        wireLengths[key] = len;
+        wires[key].style.strokeDasharray = String(len);
+        wires[key].style.strokeDashoffset = '0';
+      });
+
+      const flows = {
+        N: document.getElementById('flow-N'),
+        L: document.getElementById('flow-L'),
+        SW: document.getElementById('flow-SW'),
+        O: document.getElementById('flow-O')
+      };
+
+      const switchBlade = document.getElementById('switchBlade');
+      const switchBadge = document.getElementById('switchBadge');
+      const switchBadgeText = document.getElementById('switchBadgeText');
+      const switchJawDot = document.getElementById('switchJawDot');
+      const bulbCircle = document.getElementById('bulbCircle');
+      const bulbRays = document.getElementById('bulbRays');
+
+      // Toast 浮動提示
+      let toastTimer = null;
+      function showToast(msg) {
+        const wrapper = document.getElementById('toastWrapper');
+        const text = document.getElementById('toastText');
+        text.textContent = msg;
+        wrapper.classList.add('show');
+        if (toastTimer) {
+          clearTimeout(toastTimer);
+        }
+        toastTimer = setTimeout(() => {
+          wrapper.classList.remove('show');
+        }, 2800);
+      }
+
+      // 清除自動播放計時器
+      function clearSequenceTimers() {
+        state.sequenceTimers.forEach((id) => clearTimeout(id));
+        state.sequenceTimers = [];
+      }
+
+      // 同步電流脈衝動畫可見度
+      function syncCurrentFlowVisibility() {
+        const active = state.switchClosed && state.flowEnabled && state.currentStep >= 4;
+        Object.keys(flows).forEach((key) => {
+          const isLayerShown = state.visibleLayers[key];
+          if (active && isLayerShown) {
+            flows[key].classList.remove('hidden-el');
+          } else {
+            flows[key].classList.add('hidden-el');
+          }
+        });
+      }
+
+      // 更新導線與外殼配色（支援深色展場背景與黑白工程線稿模式）
+      function updatePaletteAndLineStyle() {
+        const mainStroke = state.isDark ? '#F8FAFC' : '#0F172A';
+        const subStroke = state.isDark ? '#94A3B8' : '#334155';
+        const housingFill = state.isDark ? '#1E293B' : '#FFFFFF';
+        const termFill = state.isDark ? '#334155' : '#E2E8F0';
+        const termHoleFill = state.isDark ? '#0F172A' : '#FFFFFF';
+
+        // 設備外殼與文字色彩
+        housingBody.setAttribute('fill', housingFill);
+        housingBody.setAttribute('stroke', mainStroke);
+        terminalBox.setAttribute('fill', termFill);
+        terminalBox.setAttribute('stroke', mainStroke);
+        terminalCircles.setAttribute('fill', termHoleFill);
+        terminalCircles.setAttribute('stroke', mainStroke);
+        terminalLabels.setAttribute('fill', mainStroke);
+        terminalLabels.querySelector('g').setAttribute('stroke', mainStroke);
+        powerLabelsGroup.setAttribute('fill', mainStroke);
+        internalRelayBlade.setAttribute('stroke', mainStroke);
+        bulbCircle.setAttribute('stroke', mainStroke);
+        document.getElementById('bulbCross1').setAttribute('stroke', mainStroke);
+        document.getElementById('bulbCross2').setAttribute('stroke', mainStroke);
+
+        if (!state.hatchFocused) {
+          document.getElementById('hatchOuter').setAttribute('stroke', state.isDark ? '#94A3B8' : '#0F172A');
+        }
+        document.getElementById('hatchOuter').setAttribute('fill', state.isDark ? '#1E293B' : '#FFFFFF');
+        document.getElementById('hatchInner').setAttribute('fill', state.isDark ? '#0F172A' : '#F8FAFC');
+
+        // 導線顏色（彩繪教學 vs 黑白工程線稿）
+        const cN = state.isMonochrome ? subStroke : '#007AFF';
+        const cL = state.isMonochrome ? mainStroke : '#E53935';
+        const cSW = state.isMonochrome ? subStroke : '#FB8C00';
+        const cO = state.isMonochrome ? subStroke : '#43A047';
+
+        wires.N_main.setAttribute('stroke', cN);
+        wires.N_bulb.setAttribute('stroke', cN);
+        nodeN.setAttribute('fill', cN);
+
+        wires.L_main.setAttribute('stroke', cL);
+        wires.L_sw.setAttribute('stroke', cL);
+        nodeL.setAttribute('fill', cL);
+
+        wires.SW.setAttribute('stroke', cSW);
+        wires.O.setAttribute('stroke', cO);
+
+        const hatchWireO = document.getElementById('hatchWireO');
+        const hatchWireSW = document.getElementById('hatchWireSW');
+        hatchWireO.setAttribute('stroke', cO);
+        hatchWireSW.setAttribute('stroke', cSW);
+
+        if (state.isMonochrome) {
+          wires.L_main.style.strokeDasharray = 'none';
+          wires.L_sw.style.strokeDasharray = 'none';
+          wires.N_main.style.strokeDasharray = '10 5';
+          wires.N_bulb.style.strokeDasharray = '10 5';
+          wires.SW.style.strokeDasharray = '12 4 3 4';
+          wires.O.style.strokeDasharray = '4 4';
+          hatchWireO.setAttribute('stroke-dasharray', '4 4');
+          hatchWireSW.setAttribute('stroke-dasharray', '12 4 3 4');
+
+          document.getElementById('legL').textContent = 'L 火線 (實線 ───)';
+          document.getElementById('legN').textContent = 'N 中性線 (長虛線 ╌╌)';
+          document.getElementById('legSW').textContent = 'SW 控制線 (點劃線 ─·─)';
+          document.getElementById('legO').textContent = 'O 輸出線 (短虛線 ···)';
+          document.getElementById('legendModeNote').textContent = '黑白工程線稿（線型區分）';
+        } else {
+          wires.L_main.style.strokeDasharray = String(wireLengths.L_main);
+          wires.L_sw.style.strokeDasharray = String(wireLengths.L_sw);
+          wires.N_main.style.strokeDasharray = String(wireLengths.N_main);
+          wires.N_bulb.style.strokeDasharray = String(wireLengths.N_bulb);
+          wires.SW.style.strokeDasharray = String(wireLengths.SW);
+          wires.O.style.strokeDasharray = String(wireLengths.O);
+          hatchWireO.removeAttribute('stroke-dasharray');
+          hatchWireSW.removeAttribute('stroke-dasharray');
+
+          document.getElementById('legN').textContent = 'N 中性線 (藍)';
+          document.getElementById('legL').textContent = 'L 火線與開關供電 (紅)';
+          document.getElementById('legSW').textContent = 'SW 控制回線 (橘)';
+          document.getElementById('legO').textContent = 'O 輸出線 (綠)';
+          document.getElementById('legendModeNote').textContent = '彩繪教學模式';
+        }
+
+        // 開闔式開關與 Shelly 飾條顏色同步
+        document.querySelector('#switchContactJaw path').setAttribute('stroke', cL);
+        switchJawDot.setAttribute('fill', cL);
+        document.querySelector('#switchBlade line').setAttribute('stroke', cSW);
+        document.querySelector('#switchBlade rect').setAttribute('fill', cL);
+        document.getElementById('switchPivotOuter').setAttribute('stroke', cSW);
+
+        shellyRedAccent.setAttribute('fill', state.isMonochrome ? subStroke : '#E52521');
+        document.getElementById('gen4RedPill').setAttribute('fill', state.isMonochrome ? subStroke : '#E52521');
+        document.getElementById('internalBusL').setAttribute('stroke', cL);
+        document.getElementById('internalBusN').setAttribute('stroke', cN);
+        document.getElementById('internalBusO').setAttribute('stroke', cO);
+        document.getElementById('relayDotO').setAttribute('fill', cO);
+        document.getElementById('relayDotL').setAttribute('fill', cL);
+      }
+
+      /**
+       * 設定開闔式開關狀態 (斷開 OPEN / 閉合 CLOSED) 與繼電器、燈泡同步
+       */
+      function setPowerState(isClosed) {
+        state.switchClosed = isClosed;
+        const bigSwitchBtn = document.getElementById('bigSwitchToggleBtn');
+
+        if (isClosed) {
+          // 1. 開關閘刀旋轉閉合
+          switchBlade.style.transform = 'rotate(0deg)';
+          switchJawDot.setAttribute('filter', 'url(#bulbGlow)');
+          switchBadge.querySelector('rect').setAttribute('fill', state.isMonochrome ? '#E2E8F0' : '#DCFCE7');
+          switchBadge.querySelector('rect').setAttribute('stroke', state.isMonochrome ? '#475569' : '#86EFAC');
+          switchBadgeText.setAttribute('fill', state.isMonochrome ? '#0F172A' : '#15803D');
+          switchBadgeText.textContent = '閉合 CLOSED';
+
+          // 2. Shelly 1PM Gen4 內部機械繼電器同步吸合與 LED 點亮
+          internalRelayBlade.style.transform = 'rotate(-21.8deg)';
+          relayStateSvgLabel.textContent = '吸合 ON';
+          relayStateSvgLabel.setAttribute('fill', state.isMonochrome ? '#0F172A' : '#16A34A');
+          deviceLedIndicator.setAttribute('fill', state.isMonochrome ? '#0F172A' : '#22C55E');
+          deviceLedIndicator.setAttribute('stroke', state.isMonochrome ? '#0F172A' : '#15803D');
+
+          // 3. 燈泡發出暖黃色光芒
+          bulbCircle.setAttribute('fill', state.isMonochrome ? '#CBD5E1' : 'url(#lampWarmGrad)');
+          if (!state.isMonochrome) {
+            bulbCircle.setAttribute('filter', 'url(#bulbGlow)');
+            bulbRays.classList.remove('hidden-el');
+          } else {
+            bulbCircle.removeAttribute('filter');
+            bulbRays.classList.add('hidden-el');
+          }
+
+          // 4. 同步右側開關狀態按鈕
+          bigSwitchBtn.classList.add('is-closed');
+          document.getElementById('bigSwitchTitle').textContent = '開闔式開關：目前閉合';
+          document.getElementById('bigSwitchSub').textContent = '上方 L 經開關導通至 SW，內部繼電器吸合並點亮燈具';
+          document.getElementById('bigSwitchPill').textContent = 'CLOSED';
+
+          liveStatusDot.className = 'status-dot active-green';
+          liveStatusText.textContent = '通電狀態：開闔式開關已閉合，繼電器吸合並點亮燈具';
+        } else {
+          // 1. 開關閘刀向上張開
+          switchBlade.style.transform = 'rotate(-38deg)';
+          switchJawDot.removeAttribute('filter');
+          switchBadge.querySelector('rect').setAttribute('fill', state.isMonochrome ? '#F1F5F9' : '#FFF7ED');
+          switchBadge.querySelector('rect').setAttribute('stroke', state.isMonochrome ? '#94A3B8' : '#FDBA74');
+          switchBadgeText.setAttribute('fill', state.isMonochrome ? '#334155' : '#C2410C');
+          switchBadgeText.textContent = '斷開 OPEN';
+
+          // 2. 內部繼電器斷開
+          internalRelayBlade.style.transform = 'rotate(0deg)';
+          relayStateSvgLabel.textContent = '斷開 OFF';
+          relayStateSvgLabel.setAttribute('fill', '#64748B');
+          deviceLedIndicator.setAttribute('fill', '#94A3B8');
+          deviceLedIndicator.setAttribute('stroke', '#64748B');
+
+          // 3. 燈泡熄滅
+          bulbCircle.setAttribute('fill', state.isDark ? '#1E293B' : '#FFFFFF');
+          bulbCircle.removeAttribute('filter');
+          bulbRays.classList.add('hidden-el');
+
+          // 4. 同步右側開關狀態按鈕
+          bigSwitchBtn.classList.remove('is-closed');
+          document.getElementById('bigSwitchTitle').textContent = '開闔式開關：目前斷開';
+          document.getElementById('bigSwitchSub').textContent = '點擊將閘刀閉合，導通 L 至 SW 並吸合繼電器';
+          document.getElementById('bigSwitchPill').textContent = 'OPEN';
+
+          liveStatusDot.className = 'status-dot standby-amber';
+          liveStatusText.textContent = '待機狀態：開闔式開關目前斷開 (OPEN)';
+        }
+
+        syncCurrentFlowVisibility();
+      }
+
+      /**
+       * 切換指定接線步驟 (1 ~ 4)
+       */
+      function applyStep(stepNum, isAuto) {
+        state.currentStep = stepNum;
+        if (!isAuto) {
+          clearSequenceTimers();
+        }
+
+        document.querySelectorAll('.step-card').forEach((btn) => {
+          const s = Number(btn.getAttribute('data-step'));
+          if (s === stepNum) {
+            btn.classList.add('active-step');
+          } else {
+            btn.classList.remove('active-step');
+          }
+        });
+
+        // 步驟 1: N 中性線
+        if (stepNum >= 1) {
+          wires.N_main.style.strokeDashoffset = '0';
+          wires.N_bulb.style.strokeDashoffset = '0';
+          nodeN.style.opacity = '1';
+        } else {
+          wires.N_main.style.strokeDashoffset = String(wireLengths.N_main);
+          wires.N_bulb.style.strokeDashoffset = String(wireLengths.N_bulb);
+          nodeN.style.opacity = '0';
+        }
+
+        // 步驟 2: L 火線與開關供電
+        if (stepNum >= 2) {
+          wires.L_main.style.strokeDashoffset = '0';
+          wires.L_sw.style.strokeDashoffset = '0';
+          nodeL.style.opacity = '1';
+        } else {
+          wires.L_main.style.strokeDashoffset = String(wireLengths.L_main);
+          wires.L_sw.style.strokeDashoffset = String(wireLengths.L_sw);
+          nodeL.style.opacity = '0';
+        }
+
+        // 步驟 3: SW 控制回線
+        if (stepNum >= 3) {
+          wires.SW.style.strokeDashoffset = '0';
+        } else {
+          wires.SW.style.strokeDashoffset = String(wireLengths.SW);
+        }
+
+        // 步驟 4: O 輸出線與送電
+        if (stepNum >= 4) {
+          wires.O.style.strokeDashoffset = '0';
+          liveStatusDot.className = 'status-dot active-sky';
+          liveStatusText.textContent = '步驟 4/4：O 輸出線穿過維修孔接至燈具，自動閉合開關送電！';
+          setTimeout(() => {
+            if (state.currentStep === 4) {
+              setPowerState(true);
+            }
+          }, 600);
+        } else {
+          wires.O.style.strokeDashoffset = String(wireLengths.O);
+          setPowerState(false);
+          liveStatusDot.className = 'status-dot active-sky';
+          const stepHints = {
+            1: '步驟 1/4：上方 N 中性線接至最右側 N(+) 端子並連至燈泡',
+            2: '步驟 2/4：上方 L 幹線接至中間 L(⊥) 端子，並跨過 N 線直入開關夾座',
+            3: '步驟 3/4：開關轉軸經 SW 橘線穿過共用維修孔接至 SW 端子'
+          };
+          liveStatusText.textContent = stepHints[stepNum] || '';
+        }
+      }
+
+      /**
+       * 從頭依序播放完整 4 步驟接線教學動畫
+       */
+      function playFullWiringSequence() {
+        clearSequenceTimers();
+        setPowerState(false);
+
+        Object.keys(wires).forEach((key) => {
+          wires[key].style.transition = 'none';
+          wires[key].style.strokeDashoffset = String(wireLengths[key]);
+        });
+        nodeN.style.opacity = '0';
+        nodeL.style.opacity = '0';
+
+        // 強制重繪後恢復漸變動畫
+        void document.getElementById('shellySvg').getBoundingClientRect();
+        Object.keys(wires).forEach((key) => {
+          wires[key].style.transition = 'stroke-dashoffset 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease, stroke 0.25s ease';
+        });
+
+        applyStep(1, true);
+        state.sequenceTimers.push(setTimeout(() => applyStep(2, true), 1100));
+        state.sequenceTimers.push(setTimeout(() => applyStep(3, true), 2200));
+        state.sequenceTimers.push(setTimeout(() => applyStep(4, true), 3300));
+      }
+
+      /**
+       * 展開或收合「O / SW 共用維修孔」技術檢修規範
+       */
+      function toggleHatchFocus(forceState) {
+        state.hatchFocused = typeof forceState === 'boolean' ? forceState : !state.hatchFocused;
+        const banner = document.getElementById('hatchInfoBanner');
+        const icon = document.getElementById('hatchInfoIcon');
+        const title = document.getElementById('hatchInfoTitle');
+        const desc = document.getElementById('hatchInfoDesc');
+        const specsList = document.getElementById('hatchSpecsList');
+        const closeBtn = document.getElementById('closeHatchInfoBtn');
+        const statusLabel = document.getElementById('inspectHatchStatus');
+        const hatchOuter = document.getElementById('hatchOuter');
+
+        if (state.hatchFocused) {
+          banner.classList.add('expanded');
+          icon.textContent = '🧰';
+          title.textContent = '技術檢修規範：O / SW 共用維修孔施工與量測標準';
+          desc.textContent = '單一雙層檢修口同時整合綠色 O 輸出線與橘色 SW 控制回線，施工與維護須符合以下三項規範：';
+          specsList.classList.remove('hidden-el');
+          closeBtn.classList.remove('hidden-el');
+          statusLabel.textContent = '已展開 ▾';
+          hatchOuter.setAttribute('stroke', '#007AFF');
+          hatchOuter.setAttribute('stroke-width', '2.8');
+          showToast('🧰 已展開「O / SW 共用維修孔」技術檢修規範');
+        } else {
+          banner.classList.remove('expanded');
+          icon.textContent = '🛠️';
+          title.textContent = '維修孔配置：O 輸出線與 SW 控制線共用檢修口';
+          desc.innerHTML = '點擊圖中「<strong>維修孔 (O·SW 共用檢修口)</strong>」或右側檢修按鈕，展開 15 cm 維護餘長與量測規範。';
+          specsList.classList.add('hidden-el');
+          closeBtn.classList.add('hidden-el');
+          statusLabel.textContent = '檢視 ▸';
+          hatchOuter.setAttribute('stroke', state.isDark ? '#94A3B8' : '#0F172A');
+          hatchOuter.setAttribute('stroke-width', '2');
+        }
+      }
+
+      /**
+       * 匯出零外部依賴的獨立互動 HTML 檔案（供上傳託管後嵌入 Notion /embed）
+       */
+      function exportNotionHtml() {
+        const clone = document.documentElement.cloneNode(true);
+        const cloneBody = clone.querySelector('body');
+        if (cloneBody) {
+          cloneBody.classList.remove('is-embed-preview');
+        }
+        const cloneToast = clone.querySelector('#toastWrapper');
+        if (cloneToast) {
+          cloneToast.classList.remove('show');
+        }
+
+        const htmlOutput = '<!DOCTYPE html>\n' + clone.outerHTML;
+        const blob = new Blob([htmlOutput], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'shelly-1pm-gen4-interactive.html';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        showToast('⬇ 已下載 shelly-1pm-gen4-interactive.html（支援 ?embed=1 嵌入 Notion）');
+      }
+
+      /**
+       * 匯出獨立動態 .SVG 向量圖檔（內建純 CSS 電流流動與燈泡發光動畫）
+       */
+      function exportStandaloneSvg() {
+        const svgEl = document.getElementById('shellySvg');
+        const svgClone = svgEl.cloneNode(true);
+        svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+        const styleEl = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+        styleEl.textContent = [
+          '@keyframes flowForward { from { stroke-dashoffset: 32; } to { stroke-dashoffset: 0; } }',
+          '.current-flow-active { stroke-dasharray: 6 10; animation: flowForward 0.72s linear infinite; }',
+          '@keyframes bulbPulse { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }',
+          '.bulb-rays-active { animation: bulbPulse 1.5s ease-in-out infinite; }',
+          '.hidden-el { display: none; }'
+        ].join('\n');
+        svgClone.insertBefore(styleEl, svgClone.firstChild);
+
+        const serializer = new XMLSerializer();
+        const svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + serializer.serializeToString(svgClone);
+        const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'shelly-1pm-gen4-wiring.svg';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        showToast('📐 已下載獨立動態向量檔 shelly-1pm-gen4-wiring.svg');
+      }
+
+      // ========================================================================
+      // 綁定所有按鈕與畫布互動事件
+      // ========================================================================
+
+      // 1. 步驟卡片點擊
+      document.querySelectorAll('.step-card').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const stepNum = Number(btn.getAttribute('data-step'));
+          applyStep(stepNum, false);
+        });
+      });
+
+      // 2. 播放完整動畫按鈕
+      document.getElementById('playSequenceBtn').addEventListener('click', () => {
+        playFullWiringSequence();
+        showToast('▶ 正在依序演示 Shelly 1PM Gen4 四步驟接線流程');
+      });
+
+      // 3. 迴路圖層獨立開關
+      const layerGroupMap = {
+        N: document.getElementById('wire-n'),
+        L: document.getElementById('wire-l'),
+        SW: document.getElementById('wire-sw'),
+        O: document.getElementById('wire-o')
+      };
+      document.querySelectorAll('.layer-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const layerKey = btn.getAttribute('data-layer');
+          state.visibleLayers[layerKey] = !state.visibleLayers[layerKey];
+          const isShown = state.visibleLayers[layerKey];
+          layerGroupMap[layerKey].style.opacity = isShown ? '1' : '0.12';
+          btn.style.opacity = isShown ? '1' : '0.45';
+          syncCurrentFlowVisibility();
+        });
+      });
+
+      // 4. 開闔式開關互動（畫布點擊 + 右側按鈕點擊）
+      document.getElementById('hinged-blade-switch').addEventListener('click', () => {
+        clearSequenceTimers();
+        if (state.currentStep < 4) {
+          applyStep(4, true);
+        }
+        setPowerState(!state.switchClosed);
+      });
+
+      document.getElementById('bigSwitchToggleBtn').addEventListener('click', () => {
+        clearSequenceTimers();
+        if (state.currentStep < 4) {
+          applyStep(4, true);
+        }
+        setPowerState(!state.switchClosed);
+      });
+
+      // 5. 維修孔互動（畫布點擊 + 右側按鈕點擊 + 收合按鈕）
+      document.getElementById('combined-inspection-port').addEventListener('click', () => {
+        toggleHatchFocus();
+      });
+
+      document.getElementById('inspectHatchBtn').addEventListener('click', () => {
+        toggleHatchFocus();
+      });
+
+      document.getElementById('closeHatchInfoBtn').addEventListener('click', () => {
+        toggleHatchFocus(false);
+      });
+
+      // 6. 深色展場背景切換
+      document.getElementById('themeToggleBtn').addEventListener('click', () => {
+        state.isDark = !state.isDark;
+        canvasCard.classList.toggle('dark-canvas', state.isDark);
+        document.getElementById('themeIcon').textContent = state.isDark ? '☀️' : '🌙';
+        document.getElementById('themeLabel').textContent = state.isDark ? '淺色紙本背景' : '深色展場背景';
+        updatePaletteAndLineStyle();
+        setPowerState(state.switchClosed);
+      });
+
+      // 7. 彩繪教學 / 黑白工程線稿切換
+      document.getElementById('lineArtToggleBtn').addEventListener('click', () => {
+        state.isMonochrome = !state.isMonochrome;
+        const icon = document.getElementById('lineArtIcon');
+        const label = document.getElementById('lineArtLabel');
+        const badge = document.getElementById('lineArtBadge');
+
+        if (state.isMonochrome) {
+          icon.textContent = '📐';
+          label.textContent = '黑白工程線稿';
+          badge.textContent = '線稿';
+          badge.style.background = '#e2e8f0';
+          badge.style.color = '#0f172a';
+        } else {
+          icon.textContent = '🎨';
+          label.textContent = '彩繪教學模式';
+          badge.textContent = '彩色';
+          badge.style.background = '#e0f2fe';
+          badge.style.color = '#0369a1';
+        }
+
+        updatePaletteAndLineStyle();
+        setPowerState(state.switchClosed);
+      });
+
+      // 8. 電流流動動畫開關
+      document.getElementById('flowAnimToggleBtn').addEventListener('click', () => {
+        state.flowEnabled = !state.flowEnabled;
+        const badge = document.getElementById('flowAnimBadge');
+        if (state.flowEnabled) {
+          badge.textContent = '開啟';
+          badge.style.background = '#dcfce7';
+          badge.style.color = '#15803d';
+        } else {
+          badge.textContent = '關閉';
+          badge.style.background = '#f1f5f9';
+          badge.style.color = '#64748b';
+        }
+        syncCurrentFlowVisibility();
+      });
+
+      // 9. 雙格式匯出與 Notion ?embed=1 預覽切換
+      document.getElementById('headerExportHtmlBtn').addEventListener('click', exportNotionHtml);
+      document.getElementById('exportHtmlBtn').addEventListener('click', exportNotionHtml);
+      document.getElementById('exportSvgBtn').addEventListener('click', exportStandaloneSvg);
+
+      document.getElementById('previewEmbedBtn').addEventListener('click', () => {
+        document.body.classList.add('is-embed-mode', 'is-embed-preview');
+        showToast('🧩 已切換至 Notion 嵌入模式 (?embed=1) 預覽');
+      });
+
+      document.getElementById('exitEmbedPreviewBtn').addEventListener('click', () => {
+        document.body.classList.remove('is-embed-mode', 'is-embed-preview');
+      });
+
+      // 頁面載入後自動播放一次完整接線動畫
+      window.addEventListener('load', () => {
+        updatePaletteAndLineStyle();
+        playFullWiringSequence();
+      });
+    })();
+  </script>
+
+</body></html>
