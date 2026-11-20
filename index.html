@@ -743,9 +743,9 @@
       </div>
 
       <div class="diagram-toolbar">
-        <div id="circuitStatusPill" class="status-pill">
+        <div id="circuitStatusPill" class="status-pill is-energized">
           <span class="status-dot"></span>
-          <span id="circuitStatusText">開關斷開（OPEN）・燈具熄滅</span>
+          <span id="circuitStatusText">開關閉合（CLOSED）・內部繼電器吸合・燈具點亮</span>
         </div>
         <span class="interaction-hint">💡 可直接點擊圖中「開闔式開關」或「維修孔」互動</span>
       </div>
@@ -767,64 +767,71 @@
           </defs>
 
           <!-- ================================================================
-               圖層 1：電源幹線標示（L / 110-240V~ / N）
+               圖層 1：電源標示與主配線路徑（L, N, SW, O）
                ================================================================ -->
-          <g id="layer-power-labels">
-            <text id="labelL" x="584" y="50" font-family="sans-serif" font-size="18" font-weight="800" fill="#E53935">L</text>
-            <text x="494" y="75" font-family="sans-serif" font-size="13.5" font-weight="700" fill="#334155">110 - 240 V~</text>
-            <text id="labelN" x="584" y="100" font-family="sans-serif" font-size="18" font-weight="800" fill="#007AFF">N</text>
+          <g id="layer-power-labels" font-family="sans-serif" font-weight="800">
+            <text id="labelL" x="595" y="51" font-size="18" fill="#E53935">L</text>
+            <text x="535" y="75" font-size="12.5" font-weight="700" fill="#475569" text-anchor="middle">110 - 240 V~</text>
+            <text id="labelN" x="595" y="101" font-size="18" fill="#007AFF">N</text>
+          </g>
+
+          <g id="layer-wires" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+            <!-- 步驟 1：N 中性線（藍色） -->
+            <path id="wireNMain" class="step-1-wire" d="M 575 95 L 140 95 L 140 140" stroke="#007AFF" style="transition: none; opacity: 1;"></path>
+            <path id="wireNDevice" class="step-1-wire" data-mode="installed" d="M 435 95 L 435 375" stroke="#007AFF" style="transition: none; opacity: 1;"></path>
+            <path id="prewireWireN" class="step-1-wire" data-mode="prewire" d="M 435 95 L 435 312" stroke="#007AFF" style="display: none;"></path>
+            <circle id="nodeN" class="step-1-node" cx="435" cy="95" r="4.5" fill="#007AFF" stroke="none" style="opacity: 1;"></circle>
+
+            <!-- 步驟 2：L 火線幹線與跨 N 跳線弧（紅色） -->
+            <path id="wireLDevice" class="step-2-wire" data-mode="installed" d="M 575 45 L 330 45 L 330 375" stroke="#E53935" style="transition: none; opacity: 1;"></path>
+            <path id="prewireWireL" class="step-2-wire" data-mode="prewire" d="M 575 45 L 330 45 L 330 312" stroke="#E53935" style="display: none;"></path>
+            <path id="wireLSwitch" class="step-2-wire" d="M 330 45 L 282 45 L 282 85 A 10 10 0 0 1 282 105 L 282 158" stroke="#E53935" style="transition: none; opacity: 1;"></path>
+            <circle id="nodeL" class="step-2-node" cx="330" cy="45" r="4.5" fill="#E53935" stroke="none" style="opacity: 1;"></circle>
+
+            <!-- 步驟 3：SW 開關控制回線（橘色） -->
+            <path id="wireSW" class="step-3-wire" data-mode="installed" d="M 260 218 L 260 375" stroke="#FB8C00" style="transition: none; opacity: 1;"></path>
+            <path id="prewireWireSW" class="step-3-wire" data-mode="prewire" d="M 260 218 L 260 312" stroke="#FB8C00" style="display: none;"></path>
+
+            <!-- 步驟 4：O 負載輸出線（綠色） -->
+            <path id="wireO" class="step-4-wire" data-mode="installed" d="M 225 375 L 225 228 L 140 228 L 140 184" stroke="#43A047" style="transition: none; opacity: 1;"></path>
+            <path id="prewireWireO" class="step-4-wire" data-mode="prewire" d="M 225 312 L 225 228 L 140 228 L 140 184" stroke="#43A047" style="display: none;"></path>
           </g>
 
           <!-- ================================================================
-               圖層 2：基礎導線路徑（支援雙模式切換、四步驟生長動畫與黑白線稿）
+               圖層 3：電流流動脈衝疊加層（拆分為「常時有電」與「受開關控制」兩組）
                ================================================================ -->
-          <g id="layer-wires" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <!-- 1. 中性線 N（藍色 #007AFF）：共用燈具主幹線 + 依模式切換至設備或預留維修孔 -->
-            <path id="wireNMain" class="wire-path step-1-wire" d="M 575 95 L 140 95 L 140 140" stroke="#007AFF" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
-            <path id="wireNDevice" class="wire-path step-1-wire" data-mode="installed" d="M 435 95 L 435 375" stroke="#007AFF" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
-            <path id="prewireWireN" class="wire-path step-1-wire" data-mode="prewire" d="M 435 95 L 435 312" stroke="#007AFF" stroke-width="3.5" style="display: none;"></path>
-            <circle id="nodeN" class="step-1-node" cx="435" cy="95" r="4.8" fill="#007AFF" style="opacity: 1;"></circle>
-
-            <!-- 2. 火線 L（紅色 #E53935）：跨過 N 線跳線弧至開關夾座 + 依模式切換至設備或預留維修孔 -->
-            <path id="wireLDevice" class="wire-path step-2-wire" data-mode="installed" d="M 575 45 L 330 45 L 330 375" stroke="#E53935" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
-            <path id="prewireWireL" class="wire-path step-2-wire" data-mode="prewire" d="M 575 45 L 330 45 L 330 312" stroke="#E53935" stroke-width="3.5" style="display: none;"></path>
-            <path id="wireLSwitch" class="wire-path step-2-wire" d="M 330 45 L 282 45 L 282 85 A 10 10 0 0 1 282 105 L 282 158" stroke="#E53935" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
-            <circle id="nodeL" class="step-2-node" cx="330" cy="45" r="4.8" fill="#E53935" style="opacity: 1;"></circle>
-
-            <!-- 3. 控制回線 SW（橘色 #FB8C00）：模式一接至 Shelly SW 端子；模式二接至維修孔並接端子 -->
-            <path id="wireSW" class="wire-path step-3-wire" data-mode="installed" d="M 260 218 L 260 375" stroke="#FB8C00" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
-            <path id="prewireWireSW" class="wire-path step-3-wire" data-mode="prewire" d="M 260 218 L 260 312" stroke="#FB8C00" stroke-width="3.5" style="display: none;"></path>
-
-            <!-- 4. 負載輸出線 O（綠色 #43A047）：模式一自 Shelly O 端子輸出；模式二自維修孔並接端子輸出 -->
-            <path id="wireO" class="wire-path step-4-wire" data-mode="installed" d="M 225 375 L 225 228 L 140 228 L 140 184" stroke="#43A047" stroke-width="3.5" style="transition: none; opacity: 1;"></path>
-            <path id="prewireWireO" class="wire-path step-3-wire" data-mode="prewire" d="M 225 312 L 225 228 L 140 228 L 140 184" stroke="#43A047" stroke-width="3.5" style="display: none;"></path>
-          </g>
-
-          <!-- ================================================================
-               圖層 3：電流流動脈衝疊加層（開關閉合且開啟電流動畫時顯示）
-               ================================================================ -->
-          <g id="layer-pulses" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0">
-            <!-- L 至 Shelly 供電脈衝（僅模式一） -->
+          <!-- 3A. 常時有電迴路（一直有電的部分：開關斷開時仍維持流動，僅受「電流流動動畫」總開關控制） -->
+          <g id="layer-pulses-always" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1">
+            <!-- L 至 Shelly 1PM Gen4 常時供電脈衝（模式一） -->
             <path id="pulseLDevice" class="pulse-flow-fwd" data-mode="installed" d="M 575 45 L 330 45 L 330 375" stroke="#fca5a5" stroke-width="3.5" stroke-dasharray="6 8"></path>
-            <!-- L 經跳線弧至開關脈衝（雙模式共用） -->
+            <!-- L 至維修孔絕緣封頭常火脈衝（模式二） -->
+            <path id="prewirePulseL" class="pulse-flow-fwd" data-mode="prewire" d="M 575 45 L 330 45 L 330 312" stroke="#fca5a5" stroke-width="3.5" stroke-dasharray="6 8" style="display: none;"></path>
+            <!-- L 經跳線弧至開關固定夾座常火脈衝（雙模式共用） -->
             <path id="pulseLSwitch" class="pulse-flow-fwd" d="M 330 45 L 282 45 L 282 85 A 10 10 0 0 1 282 105 L 282 158" stroke="#fca5a5" stroke-width="3.5" stroke-dasharray="6 8"></path>
+            <!-- N 主幹線至分接節點 & Shelly N 常時供電迴路（模式一，維持設備 24H 待機供電） -->
+            <path id="pulseNTrunk" class="pulse-flow-rev" data-mode="installed" d="M 575 95 L 435 95" stroke="#93c5fd" stroke-width="3.5" stroke-dasharray="6 8"></path>
+            <path id="pulseNDevice" class="pulse-flow-rev" data-mode="installed" d="M 435 95 L 435 375" stroke="#93c5fd" stroke-width="3.5" stroke-dasharray="6 8"></path>
+          </g>
+
+          <!-- 3B. 受開關控制迴路（僅在開關閉合時導通流動） -->
+          <g id="layer-pulses-switched" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1">
             <!-- SW 觸發訊號脈衝（依模式切換終點） -->
             <path id="pulseSW" class="pulse-flow-fwd" data-mode="installed" d="M 260 218 L 260 375" stroke="#fde047" stroke-width="3.5" stroke-dasharray="6 8"></path>
             <path id="prewirePulseSW" class="pulse-flow-fwd" data-mode="prewire" d="M 260 218 L 260 322 L 225 322" stroke="#fde047" stroke-width="3.5" stroke-dasharray="6 8" style="display: none;"></path>
             <!-- O 負載輸出至燈泡脈衝（依模式切換起點） -->
             <path id="pulseO" class="pulse-flow-fwd" data-mode="installed" d="M 225 375 L 225 228 L 140 228 L 140 184" stroke="#86efac" stroke-width="3.5" stroke-dasharray="6 8"></path>
             <path id="prewirePulseO" class="pulse-flow-fwd" data-mode="prewire" d="M 225 322 L 225 228 L 140 228 L 140 184" stroke="#86efac" stroke-width="3.5" stroke-dasharray="6 8" style="display: none;"></path>
-            <!-- N 中性線迴路脈衝 -->
-            <path id="pulseNMain" class="pulse-flow-rev" d="M 575 95 L 140 95 L 140 140" stroke="#93c5fd" stroke-width="3.5" stroke-dasharray="6 8"></path>
-            <path id="pulseNDevice" class="pulse-flow-rev" data-mode="installed" d="M 435 95 L 435 375" stroke="#93c5fd" stroke-width="3.5" stroke-dasharray="6 8"></path>
+            <!-- 燈具段 N 中性線回流脈衝（僅點燈時有回流電流） -->
+            <path id="pulseNBulb" class="pulse-flow-rev" d="M 435 95 L 140 95 L 140 140" stroke="#93c5fd" stroke-width="3.5" stroke-dasharray="6 8"></path>
+            <path id="prewirePulseNTrunk" class="pulse-flow-rev" data-mode="prewire" d="M 575 95 L 435 95" stroke="#93c5fd" stroke-width="3.5" stroke-dasharray="6 8" style="display: none;"></path>
           </g>
 
           <!-- ================================================================
                圖層 4：燈具符號（⊗，無瓦數負載文字，通電時發光）
                ================================================================ -->
           <g id="layer-bulb">
-            <circle id="bulbHalo" cx="140" cy="162" r="40" fill="url(#bulbGlowGrad)" opacity="0"></circle>
-            <g id="bulbRays" stroke="#eab308" stroke-width="2.4" stroke-linecap="round" opacity="0">
+            <circle id="bulbHalo" cx="140" cy="162" r="40" fill="url(#bulbGlowGrad)" opacity="1"></circle>
+            <g id="bulbRays" stroke="#eab308" stroke-width="2.4" stroke-linecap="round" opacity="1">
               <line x1="140" y1="127" x2="140" y2="134"></line>
               <line x1="140" y1="190" x2="140" y2="197"></line>
               <line x1="105" y1="162" x2="112" y2="162"></line>
@@ -834,80 +841,87 @@
               <line x1="164.5" y1="137.5" x2="159.5" y2="142.5"></line>
               <line x1="120.5" y1="181.5" x2="115.5" y2="186.5"></line>
             </g>
-            <circle id="bulbCircle" cx="140" cy="162" r="22" fill="#ffffff" stroke="#1e293b" stroke-width="2.6"></circle>
+            <circle id="bulbCircle" cx="140" cy="162" r="22" fill="#fef08a" stroke="#ca8a04" stroke-width="2.6"></circle>
             <line x1="124.5" y1="146.5" x2="155.5" y2="177.5" stroke="#1e293b" stroke-width="2.4" stroke-linecap="round"></line>
             <line x1="155.5" y1="146.5" x2="124.5" y2="177.5" stroke="#1e293b" stroke-width="2.4" stroke-linecap="round"></line>
           </g>
 
           <!-- ================================================================
-               圖層 5：開闔式開關（Hinged Blade Switch，狀態標籤位於左側不擋火線）
+               圖層 5：開闔式開關（Hinged Blade Switch，左側狀態標籤完全不擋火線）
                ================================================================ -->
-          <g id="layer-switch">
-            <!-- 閘片開闔虛線軌跡弧 -->
-            <path d="M 237 162 A 62 62 0 0 1 276 156" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"></path>
+          <g id="layer-switch" class="step-3-node" style="opacity: 1;">
+            <!-- 開闔軌跡虛線弧 -->
+            <path d="M 248 156 A 57 57 0 0 1 280 156" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"></path>
 
-            <!-- 上方 U 型固定夾座 (282, 158) -->
-            <path d="M 277 154 L 277 163 Q 282 167 287 163 L 287 154" fill="none" stroke="#1e293b" stroke-width="2.4" stroke-linecap="round"></path>
+            <!-- 固定 U 型接觸夾座（接上方 L 火線 x=282, y=158） -->
+            <path d="M 277 154 L 277 164 Q 282 169 287 164 L 287 154" fill="none" stroke="#1e293b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path>
 
-            <!-- 可動絕緣撥柄閘片（繞轉軸 (260, 218) 旋轉） -->
-            <g id="switchBladeArm" transform="rotate(-24 260 218)" style="transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);">
-              <line x1="260" y1="218" x2="271" y2="188" stroke="#1e293b" stroke-width="3.6" stroke-linecap="round"></line>
-              <line x1="271" y1="188" x2="282" y2="158" stroke="#f97316" stroke-width="5.2" stroke-linecap="round"></line>
+            <!-- 可動閘刀臂（繞轉軸 (260, 212) 旋轉；rotate(0) 時精準閉合入 (282, 158) 夾座） -->
+            <g id="switchBladeArm" transform="rotate(0 260 212)" style="transition: transform 0.24s cubic-bezier(0.34, 1.4, 0.64, 1);">
+              <line x1="260" y1="212" x2="282" y2="156" stroke="#1e293b" stroke-width="4" stroke-linecap="round"></line>
+              <!-- 絕緣操作撥柄套 -->
+              <line x1="270" y1="186" x2="282" y2="156" stroke="#f97316" stroke-width="6.5" stroke-linecap="round"></line>
             </g>
 
-            <!-- 下方金屬轉軸鉸鏈 (260, 218) -->
-            <circle cx="260" cy="218" r="5.5" fill="#ffffff" stroke="#1e293b" stroke-width="2.5"></circle>
-            <circle cx="260" cy="218" r="2.2" fill="#f97316"></circle>
+            <!-- 底部轉軸鉸鏈圓環（接下方 SW 控制線 x=260, y=212） -->
+            <circle cx="260" cy="212" r="6.5" fill="#ffffff" stroke="#1e293b" stroke-width="2.8"></circle>
+            <circle cx="260" cy="212" r="2.2" fill="#f97316"></circle>
 
-            <!-- 開關狀態標籤（移至左側空白處，完全不遮擋右側紅色 L 火線） -->
-            <line x1="236" y1="196" x2="253" y2="212" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="2.5 2.5"></line>
-            <rect id="switchTagBg" x="170" y="184" width="66" height="24" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.2"></rect>
-            <text id="switchTagText" x="203" y="200" text-anchor="middle" font-family="sans-serif" font-size="11.5" font-weight="700" fill="#475569">開關斷開</text>
+            <!-- 開關狀態標籤（位於開關左側空白處，完全不遮擋右側 x=330 紅色火線） -->
+            <line x1="234" y1="209" x2="251" y2="209" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="3 2"></line>
+            <g transform="translate(160, 197)">
+              <rect id="switchTagBg" x="0" y="0" width="74" height="24" rx="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.2"></rect>
+              <text id="switchTagText" x="37" y="16" text-anchor="middle" font-family="sans-serif" font-size="11.5" font-weight="700" fill="#15803d">開關閉合</text>
+            </g>
 
-            <!-- 開關擴大點擊感應區 -->
-            <rect id="switchHitTarget" x="166" y="148" width="132" height="82" rx="10" fill="transparent" style="cursor: pointer;" pointer-events="all"></rect>
+            <!-- 擴大點擊感應熱區 -->
+            <rect id="switchHitTarget" x="156" y="144" width="144" height="84" rx="10" fill="transparent" style="cursor: pointer;" pointer-events="all"></rect>
           </g>
 
           <!-- ================================================================
-               圖層 6A：模式一｜O / SW 共用維修孔（單一合併檢修口，左側標籤框）
+               圖層 6A：模式一｜O / SW 共用維修孔（加大檢修口尺寸 100×104，左側標籤框）
                ================================================================ -->
           <g id="layer-inspection-port" data-mode="installed">
-            <!-- 維修孔雙層檢修外框 (206, 252, 73x64) -->
-            <rect id="portOuterBox" x="206" y="252" width="73" height="64" rx="8" fill="#ffffff" fill-opacity="0.92" stroke="#334155" stroke-width="2"></rect>
+            <!-- 加大版維修孔雙層檢修外框 (194, 238, 100x104) -->
+            <rect id="portOuterBox" x="194" y="238" width="100" height="104" rx="10" fill="#ffffff" fill-opacity="0.94" stroke="#334155" stroke-width="2.2"></rect>
             <!-- 內部可拆式虛線蓋板 -->
-            <rect id="portInnerCover" x="212" y="258" width="61" height="52" rx="5" fill="#f8fafc" stroke="#64748b" stroke-width="1.4" stroke-dasharray="4 3"></rect>
+            <rect id="portInnerCover" x="201" y="245" width="86" height="90" rx="6" fill="#f8fafc" stroke="#64748b" stroke-width="1.4" stroke-dasharray="4 3"></rect>
 
             <!-- 左側鉸鏈刻度 -->
-            <line x1="204" y1="271" x2="209" y2="271" stroke="#334155" stroke-width="2.4" stroke-linecap="round"></line>
-            <line x1="204" y1="297" x2="209" y2="297" stroke="#334155" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="192" y1="268" x2="197" y2="268" stroke="#334155" stroke-width="2.5" stroke-linecap="round"></line>
+            <line x1="192" y1="312" x2="197" y2="312" stroke="#334155" stroke-width="2.5" stroke-linecap="round"></line>
 
             <!-- 四角固定螺絲 -->
-            <circle cx="216" cy="262" r="2.2" fill="#64748b"></circle>
-            <circle cx="269" cy="262" r="2.2" fill="#64748b"></circle>
-            <circle cx="216" cy="306" r="2.2" fill="#64748b"></circle>
-            <circle cx="269" cy="306" r="2.2" fill="#64748b"></circle>
+            <circle cx="206" cy="250" r="2.3" fill="#64748b"></circle>
+            <circle cx="282" cy="250" r="2.3" fill="#64748b"></circle>
+            <circle cx="206" cy="330" r="2.3" fill="#64748b"></circle>
+            <circle cx="282" cy="330" r="2.3" fill="#64748b"></circle>
 
             <!-- 穿線橡膠護套環（Grommets）：左側 O 線 (x=225)、右側 SW 線 (x=260) -->
-            <rect x="220" y="249" width="10" height="6" rx="2" fill="#334155"></rect>
-            <rect x="220" y="313" width="10" height="6" rx="2" fill="#334155"></rect>
-            <rect x="255" y="249" width="10" height="6" rx="2" fill="#334155"></rect>
-            <rect x="255" y="313" width="10" height="6" rx="2" fill="#334155"></rect>
+            <rect x="220" y="235" width="10" height="6" rx="2" fill="#334155"></rect>
+            <rect x="220" y="339" width="10" height="6" rx="2" fill="#334155"></rect>
+            <rect x="255" y="235" width="10" height="6" rx="2" fill="#334155"></rect>
+            <rect x="255" y="339" width="10" height="6" rx="2" fill="#334155"></rect>
 
             <!-- 重繪穿過維修孔的 O 與 SW 線段，確保線條穿過護套且位於蓋板上方 -->
-            <line id="portWireO" x1="225" y1="252" x2="225" y2="316" stroke="#43A047" stroke-width="3.5" style="opacity: 1;"></line>
-            <line id="portWireSW" x1="260" y1="252" x2="260" y2="316" stroke="#FB8C00" stroke-width="3.5" style="opacity: 1;"></line>
+            <line id="portWireO" x1="225" y1="238" x2="225" y2="342" stroke="#43A047" stroke-width="3.5" style="opacity: 1;"></line>
+            <line id="portWireSW" x1="260" y1="238" x2="260" y2="342" stroke="#FB8C00" stroke-width="3.5" style="opacity: 1;"></line>
+
+            <!-- 維修孔內部迴路標記 -->
+            <text x="213" y="294" text-anchor="middle" font-family="sans-serif" font-size="10.5" font-weight="800" fill="#475569">O</text>
+            <text x="275" y="294" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="800" fill="#475569">SW</text>
 
             <!-- 維修孔左側說明標籤與水平指示連接線 -->
-            <line x1="188" y1="284" x2="206" y2="284" stroke="#60a5fa" stroke-width="1.6" stroke-dasharray="3 2"></line>
-            <circle cx="206" cy="284" r="2.8" fill="#3b82f6"></circle>
-            <g transform="translate(52, 262)">
+            <line x1="176" y1="290" x2="194" y2="290" stroke="#60a5fa" stroke-width="1.6" stroke-dasharray="3 2"></line>
+            <circle cx="194" cy="290" r="2.8" fill="#3b82f6"></circle>
+            <g transform="translate(40, 268)">
               <rect id="portBadgeBg" x="0" y="0" width="136" height="44" rx="7" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.2"></rect>
               <text x="68" y="18" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="700" fill="#1d4ed8">維修孔 (檢修口)</text>
               <text x="68" y="34" text-anchor="middle" font-family="sans-serif" font-size="10.5" font-weight="600" fill="#3b82f6">O · SW 共用留線</text>
             </g>
 
-            <!-- 擴大點擊感應區（涵蓋左側標籤與維修孔本體） -->
-            <rect id="portHitTarget" x="48" y="246" width="236" height="76" rx="10" fill="transparent" style="cursor: pointer;" pointer-events="all"></rect>
+            <!-- 擴大點擊感應區（涵蓋左側標籤與加大版維修孔本體） -->
+            <rect id="portHitTarget" x="36" y="232" width="264" height="116" rx="12" fill="transparent" style="cursor: pointer;" pointer-events="all"></rect>
           </g>
 
           <!-- ================================================================
@@ -933,16 +947,16 @@
             <rect x="430" y="249" width="10" height="6" rx="2" fill="#334155"></rect>
 
             <!-- 維修孔內部線段重繪（確保穿過頂部護套位於蓋板上方） -->
-            <line id="prewirePortLineO" class="step-3-wire" x1="225" y1="252" x2="225" y2="312" stroke="#43A047" stroke-width="3.5" style="transition: none; opacity: 1;"></line>
-            <line id="prewirePortLineSW" class="step-3-wire" x1="260" y1="252" x2="260" y2="312" stroke="#FB8C00" stroke-width="3.5" style="transition: none; opacity: 1;"></line>
-            <line id="prewirePortLineL" class="step-2-wire" x1="330" y1="252" x2="330" y2="312" stroke="#E53935" stroke-width="3.5" style="transition: none; opacity: 1;"></line>
-            <line id="prewirePortLineN" class="step-1-wire" x1="435" y1="252" x2="435" y2="312" stroke="#007AFF" stroke-width="3.5" style="transition: none; opacity: 1;"></line>
+            <line id="prewirePortLineO" class="step-3-wire" data-mode="prewire" x1="225" y1="252" x2="225" y2="312" stroke="#43A047" stroke-width="3.5"></line>
+            <line id="prewirePortLineSW" class="step-3-wire" data-mode="prewire" x1="260" y1="252" x2="260" y2="312" stroke="#FB8C00" stroke-width="3.5"></line>
+            <line id="prewirePortLineL" class="step-2-wire" data-mode="prewire" x1="330" y1="252" x2="330" y2="312" stroke="#E53935" stroke-width="3.5"></line>
+            <line id="prewirePortLineN" class="step-1-wire" data-mode="prewire" x1="435" y1="252" x2="435" y2="312" stroke="#007AFF" stroke-width="3.5"></line>
 
             <!-- 內部分區虛線（左側：O ↔ SW 並接區 / 右側：L & N 供電預留區） -->
             <line x1="292" y1="264" x2="292" y2="374" stroke="#cbd5e1" stroke-width="1.3" stroke-dasharray="3 3"></line>
 
             <!-- 1. O ↔ SW 快速並接端子（Wago / Splice Connector，於維修孔內直通相連） -->
-            <g id="prewireSpliceConnector" class="step-3-node" style="opacity: 1;">
+            <g id="prewireSpliceConnector" class="step-3-node" data-mode="prewire">
               <!-- 透明絕緣外殼 -->
               <rect x="214" y="309" width="57" height="26" rx="5" fill="#ffffff" stroke="#334155" stroke-width="1.8"></rect>
               <!-- 雙孔操作撥桿 -->
@@ -958,7 +972,7 @@
             </g>
 
             <!-- 2. L 火線獨立絕緣封頭預留（供電給未來 Shelly） -->
-            <g id="prewireCapL" class="step-2-node" style="opacity: 1;">
+            <g id="prewireCapL" class="step-2-node" data-mode="prewire">
               <rect id="capRectL" x="322" y="309" width="16" height="20" rx="4" fill="#fee2e2" stroke="#E53935" stroke-width="1.8"></rect>
               <line x1="324" y1="315" x2="336" y2="315" stroke="#E53935" stroke-width="1.4"></line>
               <text id="capTextL" x="330" y="346" text-anchor="middle" font-family="sans-serif" font-size="11.5" font-weight="800" fill="#dc2626">L 預留 (供電)</text>
@@ -966,7 +980,7 @@
             </g>
 
             <!-- 3. N 中性線獨立絕緣封頭預留（供電給未來 Shelly） -->
-            <g id="prewireCapN" class="step-1-node" style="opacity: 1;">
+            <g id="prewireCapN" class="step-1-node" data-mode="prewire">
               <rect id="capRectN" x="427" y="309" width="16" height="20" rx="4" fill="#dbeafe" stroke="#007AFF" stroke-width="1.8"></rect>
               <line x1="429" y1="315" x2="441" y2="315" stroke="#007AFF" stroke-width="1.4"></line>
               <text id="capTextN" x="435" y="346" text-anchor="middle" font-family="sans-serif" font-size="11.5" font-weight="800" fill="#0284c7">N 預留 (供電)</text>
@@ -1036,26 +1050,39 @@
             <rect id="shellyRedBar" x="214" y="460" width="232" height="28" rx="6" fill="#E52521"></rect>
             <text x="226" y="479" font-family="sans-serif" font-size="14.5" font-weight="800" fill="#ffffff" letter-spacing="0.3">Shelly 1PM Gen4</text>
             <!-- 狀態 LED 指示燈 -->
-            <circle id="deviceStatusLed" cx="432" cy="474" r="4.5" fill="#991b1b" stroke="#ffffff" stroke-width="1.2"></circle>
+            <circle id="deviceStatusLed" cx="432" cy="474" r="4.5" fill="#4ade80" stroke="#ffffff" stroke-width="1.2"></circle>
 
             <!-- 設備內部電路示意框（SW x=260 下方完全留白，無任何黃/橘色線條） -->
             <rect x="214" y="498" width="232" height="94" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"></rect>
 
             <!-- 內部 O 輸出接點線（連接 O 端子至繼電器靜止接點） -->
             <path d="M 225 498 L 225 535" fill="none" stroke="#43A047" stroke-width="2.6" stroke-linecap="round" id="internalWireO"></path>
-            <circle cx="225" cy="535" r="3.8" fill="#1e293b"></circle>
 
             <!-- 內部 L 供電與繼電器樞軸線 -->
             <path d="M 330 498 L 330 535 L 280 535" fill="none" stroke="#E53935" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" id="internalWireL"></path>
-            <path d="M 330 535 L 330 568 L 362 568" fill="none" stroke="#E53935" stroke-width="2" stroke-dasharray="3 3" id="internalBusL"></path>
+            <path d="M 330 535 L 330 568 L 362 568" fill="none" stroke="#E53935" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" id="internalBusL"></path>
 
             <!-- 內部 N 中性線供電至控制晶片 -->
-            <path d="M 435 498 L 435 568 L 408 568" fill="none" stroke="#007AFF" stroke-width="2" stroke-dasharray="3 3" id="internalBusN"></path>
+            <path d="M 435 498 L 435 568 L 408 568" fill="none" stroke="#007AFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" id="internalBusN"></path>
+
+            <!-- 內部常時有電電流脈衝（L/N 供電至繼電器樞軸與 Gen4 晶片，開關斷開時依然持續流動） -->
+            <g id="internalPulsesAlways" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1">
+              <path class="pulse-flow-fwd" d="M 330 498 L 330 535 L 280 535" stroke="#fca5a5" stroke-width="2.6" stroke-dasharray="5 6"></path>
+              <path class="pulse-flow-fwd" d="M 330 535 L 330 568 L 362 568" stroke="#fca5a5" stroke-width="2.4" stroke-dasharray="5 6"></path>
+              <path class="pulse-flow-rev" d="M 435 498 L 435 568 L 408 568" stroke="#93c5fd" stroke-width="2.4" stroke-dasharray="5 6"></path>
+            </g>
 
             <!-- 內部連動機械繼電器可動接點臂（繞 (280, 535) 旋轉，與外部開關同步閉合/斷開） -->
-            <g id="internalRelayArm" transform="rotate(24 280 535)">
+            <g id="internalRelayArm" transform="rotate(0 280 535)">
               <line x1="280" y1="535" x2="225" y2="535" stroke="#1e293b" stroke-width="3.2" stroke-linecap="round"></line>
             </g>
+
+            <!-- 內部受控負載電流脈衝（僅在繼電器吸合時跨過接點流向 O 輸出） -->
+            <g id="internalPulsesSwitched" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1">
+              <path class="pulse-flow-fwd" d="M 280 535 L 225 535 L 225 498" stroke="#86efac" stroke-width="2.8" stroke-dasharray="5 6"></path>
+            </g>
+
+            <circle cx="225" cy="535" r="3.8" fill="#1e293b"></circle>
             <circle cx="280" cy="535" r="3.8" fill="#E53935" id="internalRelayPivot"></circle>
             <text x="252" y="558" text-anchor="middle" font-family="sans-serif" font-size="10.5" font-weight="700" fill="#475569">內部繼電器</text>
 
@@ -1110,6 +1137,7 @@
           <span class="legend-item"><i class="legend-swatch" style="background:#E53935;"></i>L 火線與開關供電</span>
           <span class="legend-item"><i class="legend-swatch" style="background:#FB8C00;"></i>SW 控制回線</span>
           <span class="legend-item"><i class="legend-swatch" style="background:#43A047;"></i>O 負載輸出</span>
+          <span class="legend-item"><i class="legend-swatch" style="background:#fca5a5; border:1px dashed #ef4444;"></i>常電脈衝（不受開關影響）</span>
         </div>
         <span id="modeLegendTag" style="font-weight: 600;">彩繪教學模式</span>
       </div>
@@ -1139,11 +1167,11 @@
             <span id="step2Title" class="step-btn-title">2. L 火線與跳線弧</span>
             <span id="step2Sub" class="step-btn-sub">供電 L(⊥) 並跨 N 入開關</span>
           </button>
-          <button type="button" class="step-btn is-active" data-step="3">
+          <button type="button" class="step-btn" data-step="3">
             <span id="step3Title" class="step-btn-title">3. SW 開闔式開關</span>
             <span id="step3Sub" class="step-btn-sub">經共用維修孔接入 SW</span>
           </button>
-          <button type="button" class="step-btn" data-step="4">
+          <button type="button" class="step-btn is-active" data-step="4">
             <span id="step4Title" class="step-btn-title">4. O 負載點亮燈泡</span>
             <span id="step4Sub" class="step-btn-sub">經共用維修孔輸出點燈</span>
           </button>
@@ -1159,15 +1187,15 @@
 
         <div class="control-stack">
           <!-- 開闔式開關主按鈕 -->
-          <button type="button" id="switchControlBtn" class="switch-action-btn">
+          <button type="button" id="switchControlBtn" class="switch-action-btn is-closed">
             <div class="switch-btn-left">
-              <div class="switch-icon-box" id="switchIconBox">⚡</div>
+              <div class="switch-icon-box" id="switchIconBox">💡</div>
               <div>
-                <span class="switch-btn-label" id="switchBtnLabel">開闔式開關：目前斷開</span>
-                <span class="switch-btn-desc" id="switchBtnDesc">點擊閉合開關，觸發 SW 並吸合內部繼電器</span>
+                <span class="switch-btn-label" id="switchBtnLabel">開闔式開關：目前閉合</span>
+                <span class="switch-btn-desc" id="switchBtnDesc">上方 L 經開關導通至 SW，內部繼電器吸合並點亮燈具</span>
               </div>
             </div>
-            <span class="state-badge" id="switchStateBadge">OPEN</span>
+            <span class="state-badge" id="switchStateBadge">CLOSED</span>
           </button>
 
           <!-- 維修孔檢修規範說明按鈕 -->
@@ -1231,6 +1259,7 @@
         isSwitchClosed: false,
         isBwMode: false,
         isPulseEnabled: true,
+        isWiringInProgress: false,
         isPortExpanded: false,
         activeStep: 4,
         sequenceTimers: []
@@ -1249,15 +1278,25 @@
         bulbHalo: document.getElementById('bulbHalo'),
         bulbRays: document.getElementById('bulbRays'),
         deviceStatusLed: document.getElementById('deviceStatusLed'),
-        layerPulses: document.getElementById('layer-pulses'),
+        layerPulsesAlways: document.getElementById('layer-pulses-always'),
+        layerPulsesSwitched: document.getElementById('layer-pulses-switched'),
+        internalPulsesAlways: document.getElementById('internalPulsesAlways'),
+        internalPulsesSwitched: document.getElementById('internalPulsesSwitched'),
         switchControlBtn: document.getElementById('switchControlBtn'),
         switchIconBox: document.getElementById('switchIconBox'),
         switchBtnLabel: document.getElementById('switchBtnLabel'),
         switchBtnDesc: document.getElementById('switchBtnDesc'),
         switchStateBadge: document.getElementById('switchStateBadge'),
+        switchHitTarget: document.getElementById('switchHitTarget'),
+        portHitTarget: document.getElementById('portHitTarget'),
+        prewirePortHitTarget: document.getElementById('prewirePortHitTarget'),
         portControlBtn: document.getElementById('portControlBtn'),
-        portBtnDesc: document.getElementById('portBtnDesc'),
         portStateBadge: document.getElementById('portStateBadge'),
+        portBtnDesc: document.getElementById('portBtnDesc'),
+        portOuterBox: document.getElementById('portOuterBox'),
+        portBadgeBg: document.getElementById('portBadgeBg'),
+        prewirePortOuterBox: document.getElementById('prewirePortOuterBox'),
+        prewirePortBadgeBg: document.getElementById('prewirePortBadgeBg'),
         inspectionBanner: document.getElementById('inspectionBanner'),
         inspectionHeader: document.getElementById('inspectionHeader'),
         inspectionTitleText: document.getElementById('inspectionTitleText'),
@@ -1267,10 +1306,6 @@
         inspectionItem2Title: document.getElementById('inspectionItem2Title'),
         inspectionItem2Body: document.getElementById('inspectionItem2Body'),
         inspectionToggleHint: document.getElementById('inspectionToggleHint'),
-        portOuterBox: document.getElementById('portOuterBox'),
-        portBadgeBg: document.getElementById('portBadgeBg'),
-        prewirePortOuterBox: document.getElementById('prewirePortOuterBox'),
-        prewirePortBadgeBg: document.getElementById('prewirePortBadgeBg'),
         colorModeBtn: document.getElementById('colorModeBtn'),
         colorModeLabel: document.getElementById('colorModeLabel'),
         colorModeBadge: document.getElementById('colorModeBadge'),
@@ -1279,9 +1314,6 @@
         pulseModeBadge: document.getElementById('pulseModeBadge'),
         replayBtn: document.getElementById('replayBtn'),
         stepBtns: document.querySelectorAll('.step-btn'),
-        switchHitTarget: document.getElementById('switchHitTarget'),
-        portHitTarget: document.getElementById('portHitTarget'),
-        prewirePortHitTarget: document.getElementById('prewirePortHitTarget'),
         exportHtmlBtn: document.getElementById('exportHtmlBtn'),
         exportSvgBtn: document.getElementById('exportSvgBtn'),
         toastWrapper: document.getElementById('toastWrapper')
@@ -1292,26 +1324,32 @@
         if (!el.toastWrapper) return;
         el.toastWrapper.textContent = message;
         el.toastWrapper.classList.add('show');
-        clearTimeout(toastTimer);
+        if (toastTimer) clearTimeout(toastTimer);
         toastTimer = setTimeout(() => {
           el.toastWrapper.classList.remove('show');
         }, 3200);
       }
 
       /* ========================================================================
-         3. 同步更新開關、內部繼電器、燈泡與電流脈衝狀態（支援雙模式）
+         3. 開關狀態與電路通電連動渲染
          ======================================================================== */
       function renderCircuitState() {
         const closed = state.isSwitchClosed;
         const isPrewire = state.diagramMode === 'prewire';
 
-        // 1. 外部開闔式開關閘片旋轉（0deg 閉合 / -24deg 斷開）
-        el.switchBladeArm.setAttribute('transform', closed ? 'rotate(0 260 218)' : 'rotate(-24 260 218)');
+        // 1. 開闔式開關閘刀臂旋轉
+        el.switchBladeArm.setAttribute(
+          'transform',
+          closed ? 'rotate(0 260 212)' : 'rotate(-34 260 212)'
+        );
 
-        // 2. Shelly 1PM Gen4 內部機械繼電器同步吸合（0deg 閉合 / 24deg 斷開）
-        el.internalRelayArm.setAttribute('transform', closed ? 'rotate(0 280 535)' : 'rotate(24 280 535)');
+        // 2. Shelly 1PM Gen4 內部機械繼電器接點同步吸合/斷開
+        el.internalRelayArm.setAttribute(
+          'transform',
+          closed ? 'rotate(0 280 535)' : 'rotate(24 280 535)'
+        );
 
-        // 3. 畫布開關狀態標籤
+        // 3. 開關左側狀態標籤更新
         if (closed) {
           el.switchTagBg.setAttribute('fill', '#dcfce7');
           el.switchTagBg.setAttribute('stroke', '#22c55e');
@@ -1319,12 +1357,12 @@
           el.switchTagText.textContent = '開關閉合';
         } else {
           el.switchTagBg.setAttribute('fill', '#f1f5f9');
-          el.switchTagBg.setAttribute('stroke', '#cbd5e1');
+          el.switchTagBg.setAttribute('stroke', '#94a3b8');
           el.switchTagText.setAttribute('fill', '#475569');
           el.switchTagText.textContent = '開關斷開';
         }
 
-        // 4. 燈泡發光與設備 LED 狀態（無瓦數文字）
+        // 4. 燈泡發光與設備 LED 狀態（Shelly L/N 常時有電，待機時顯示藍燈、吸合時顯示綠燈）
         if (closed) {
           el.bulbCircle.setAttribute('fill', '#fef08a');
           el.bulbCircle.setAttribute('stroke', '#ca8a04');
@@ -1336,12 +1374,22 @@
           el.bulbCircle.setAttribute('stroke', '#1e293b');
           el.bulbHalo.setAttribute('opacity', '0');
           el.bulbRays.setAttribute('opacity', '0');
-          el.deviceStatusLed.setAttribute('fill', '#991b1b');
+          el.deviceStatusLed.setAttribute('fill', '#38bdf8');
         }
 
-        // 5. 電流脈衝虛線顯示控制
-        const showPulses = closed && state.isPulseEnabled;
-        el.layerPulses.setAttribute('opacity', showPulses ? '1' : '0');
+        // 5. 電流脈衝虛線顯示控制（同步套用至外部線路與 Shelly 設備內部電路）：
+        //    - 常時有電迴路（L/N 供電與開關進線）：只要開啟電流動畫即持續流動，不隨開關關閉而熄滅
+        //    - 受開關控制迴路（SW / O / 繼電器接點 / 燈具回流）：僅在開關閉合時導通流動
+        const showAlwaysPulses = state.isPulseEnabled && !state.isWiringInProgress;
+        const showSwitchedPulses = closed && state.isPulseEnabled && !state.isWiringInProgress;
+        el.layerPulsesAlways.setAttribute('opacity', showAlwaysPulses ? '1' : '0');
+        el.layerPulsesSwitched.setAttribute('opacity', showSwitchedPulses ? '1' : '0');
+        if (el.internalPulsesAlways) {
+          el.internalPulsesAlways.setAttribute('opacity', showAlwaysPulses ? '1' : '0');
+        }
+        if (el.internalPulsesSwitched) {
+          el.internalPulsesSwitched.setAttribute('opacity', showSwitchedPulses ? '1' : '0');
+        }
 
         // 6. 頂部狀態膠囊與右側控制按鈕同步
         if (closed) {
@@ -1359,8 +1407,8 @@
         } else {
           el.circuitStatusPill.classList.remove('is-energized');
           el.circuitStatusText.textContent = isPrewire
-            ? '開關斷開（OPEN）・O ↔ SW 直通迴路斷路・燈具熄滅'
-            : '開關斷開（OPEN）・燈具熄滅';
+            ? '開關斷開（OPEN）・L 常火待命・燈具熄滅'
+            : '開關斷開（OPEN）・L/N 常時供電中・燈具熄滅';
           el.switchControlBtn.classList.remove('is-closed');
           el.switchIconBox.textContent = '⚡';
           el.switchBtnLabel.textContent = '開闔式開關：目前斷開';
@@ -1457,7 +1505,7 @@
           el.inspectionToggleHint.textContent = '收合規範 ▴';
           el.portStateBadge.textContent = '已展開';
           el.portOuterBox.setAttribute('stroke', '#2563eb');
-          el.portOuterBox.setAttribute('stroke-width', '2.5');
+          el.portOuterBox.setAttribute('stroke-width', '2.6');
           el.portBadgeBg.setAttribute('fill', '#dbeafe');
           el.portBadgeBg.setAttribute('stroke', '#3b82f6');
           el.prewirePortOuterBox.setAttribute('stroke', '#2563eb');
@@ -1469,7 +1517,7 @@
           el.inspectionToggleHint.textContent = '展開規範 ▾';
           el.portStateBadge.textContent = '檢視';
           el.portOuterBox.setAttribute('stroke', '#334155');
-          el.portOuterBox.setAttribute('stroke-width', '2');
+          el.portOuterBox.setAttribute('stroke-width', '2.2');
           el.portBadgeBg.setAttribute('fill', '#eff6ff');
           el.portBadgeBg.setAttribute('stroke', '#93c5fd');
           el.prewirePortOuterBox.setAttribute('stroke', '#334155');
@@ -1516,6 +1564,8 @@
         const shellyRedBar = document.getElementById('shellyRedBar');
         const internalWireO = document.getElementById('internalWireO');
         const internalWireL = document.getElementById('internalWireL');
+        const internalBusL = document.getElementById('internalBusL');
+        const internalBusN = document.getElementById('internalBusN');
         const capRectL = document.getElementById('capRectL');
         const capTextL = document.getElementById('capTextL');
         const capRectN = document.getElementById('capRectN');
@@ -1524,38 +1574,48 @@
         if (bw) {
           // 黑白工程線稿模式：以實線 / 虛線 / 點劃線區分不同迴路
           nWires.forEach((p) => {
+            if (!p) return;
             p.setAttribute('stroke', '#1e293b');
             p.setAttribute('stroke-dasharray', '10 5');
           });
-          nodeN.setAttribute('fill', '#1e293b');
+          if (nodeN) nodeN.setAttribute('fill', '#1e293b');
 
           lWires.forEach((p) => {
+            if (!p) return;
             p.setAttribute('stroke', '#0f172a');
             p.removeAttribute('stroke-dasharray');
           });
-          nodeL.setAttribute('fill', '#0f172a');
+          if (nodeL) nodeL.setAttribute('fill', '#0f172a');
 
           swWires.forEach((p) => {
+            if (!p) return;
             p.setAttribute('stroke', '#334155');
             p.setAttribute('stroke-dasharray', '4 4');
           });
 
           oWires.forEach((p) => {
+            if (!p) return;
             p.setAttribute('stroke', '#0f172a');
             p.setAttribute('stroke-dasharray', '12 4 3 4');
           });
 
-          labelL.setAttribute('fill', '#0f172a');
-          labelN.setAttribute('fill', '#0f172a');
-          shellyRedBar.setAttribute('fill', '#1e293b');
-          internalWireO.setAttribute('stroke', '#1e293b');
-          internalWireL.setAttribute('stroke', '#1e293b');
-          capRectL.setAttribute('fill', '#f1f5f9');
-          capRectL.setAttribute('stroke', '#0f172a');
-          capTextL.setAttribute('fill', '#0f172a');
-          capRectN.setAttribute('fill', '#f1f5f9');
-          capRectN.setAttribute('stroke', '#1e293b');
-          capTextN.setAttribute('fill', '#1e293b');
+          if (labelL) labelL.setAttribute('fill', '#0f172a');
+          if (labelN) labelN.setAttribute('fill', '#0f172a');
+          if (shellyRedBar) shellyRedBar.setAttribute('fill', '#1e293b');
+          if (internalWireO) internalWireO.setAttribute('stroke', '#1e293b');
+          if (internalWireL) internalWireL.setAttribute('stroke', '#1e293b');
+          if (internalBusL) internalBusL.setAttribute('stroke', '#1e293b');
+          if (internalBusN) internalBusN.setAttribute('stroke', '#334155');
+          if (capRectL) {
+            capRectL.setAttribute('fill', '#f1f5f9');
+            capRectL.setAttribute('stroke', '#0f172a');
+          }
+          if (capTextL) capTextL.setAttribute('fill', '#0f172a');
+          if (capRectN) {
+            capRectN.setAttribute('fill', '#f1f5f9');
+            capRectN.setAttribute('stroke', '#1e293b');
+          }
+          if (capTextN) capTextN.setAttribute('fill', '#1e293b');
 
           el.colorModeLabel.textContent = '黑白工程線稿模式';
           el.colorModeBadge.textContent = '線稿';
@@ -1563,38 +1623,48 @@
         } else {
           // 彩繪教學模式
           nWires.forEach((p) => {
+            if (!p) return;
             p.setAttribute('stroke', '#007AFF');
             p.removeAttribute('stroke-dasharray');
           });
-          nodeN.setAttribute('fill', '#007AFF');
+          if (nodeN) nodeN.setAttribute('fill', '#007AFF');
 
           lWires.forEach((p) => {
+            if (!p) return;
             p.setAttribute('stroke', '#E53935');
             p.removeAttribute('stroke-dasharray');
           });
-          nodeL.setAttribute('fill', '#E53935');
+          if (nodeL) nodeL.setAttribute('fill', '#E53935');
 
           swWires.forEach((p) => {
+            if (!p) return;
             p.setAttribute('stroke', '#FB8C00');
             p.removeAttribute('stroke-dasharray');
           });
 
           oWires.forEach((p) => {
+            if (!p) return;
             p.setAttribute('stroke', '#43A047');
             p.removeAttribute('stroke-dasharray');
           });
 
-          labelL.setAttribute('fill', '#E53935');
-          labelN.setAttribute('fill', '#007AFF');
-          shellyRedBar.setAttribute('fill', '#E52521');
-          internalWireO.setAttribute('stroke', '#43A047');
-          internalWireL.setAttribute('stroke', '#E53935');
-          capRectL.setAttribute('fill', '#fee2e2');
-          capRectL.setAttribute('stroke', '#E53935');
-          capTextL.setAttribute('fill', '#dc2626');
-          capRectN.setAttribute('fill', '#dbeafe');
-          capRectN.setAttribute('stroke', '#007AFF');
-          capTextN.setAttribute('fill', '#0284c7');
+          if (labelL) labelL.setAttribute('fill', '#E53935');
+          if (labelN) labelN.setAttribute('fill', '#007AFF');
+          if (shellyRedBar) shellyRedBar.setAttribute('fill', '#E52521');
+          if (internalWireO) internalWireO.setAttribute('stroke', '#43A047');
+          if (internalWireL) internalWireL.setAttribute('stroke', '#E53935');
+          if (internalBusL) internalBusL.setAttribute('stroke', '#E53935');
+          if (internalBusN) internalBusN.setAttribute('stroke', '#007AFF');
+          if (capRectL) {
+            capRectL.setAttribute('fill', '#fee2e2');
+            capRectL.setAttribute('stroke', '#E53935');
+          }
+          if (capTextL) capTextL.setAttribute('fill', '#dc2626');
+          if (capRectN) {
+            capRectN.setAttribute('fill', '#dbeafe');
+            capRectN.setAttribute('stroke', '#007AFF');
+          }
+          if (capTextN) capTextN.setAttribute('fill', '#0284c7');
 
           el.colorModeLabel.textContent = '彩繪教學模式';
           el.colorModeBadge.textContent = '彩色';
@@ -1684,6 +1754,7 @@
       function runSingleStep(stepNum, autoCloseAtEnd = false) {
         clearSequenceTimers();
         setStepButtonActive(stepNum);
+        state.isWiringInProgress = stepNum < 2;
 
         for (let s = 1; s <= 4; s++) {
           if (s < stepNum) {
@@ -1695,6 +1766,8 @@
 
         if (stepNum < 4 || !autoCloseAtEnd) {
           toggleSwitch(false);
+        } else {
+          renderCircuitState();
         }
 
         getActiveStepElements(stepNum, `step-${stepNum}-node`).forEach((n) => {
@@ -1730,6 +1803,7 @@
 
       function playFullSequence() {
         clearSequenceTimers();
+        state.isWiringInProgress = true;
         toggleSwitch(false);
         for (let s = 1; s <= 4; s++) {
           hideWireGroup(s);
@@ -1739,6 +1813,10 @@
         [1, 2, 3, 4].forEach((stepNum, idx) => {
           const timer = setTimeout(() => {
             setStepButtonActive(stepNum);
+            if (stepNum >= 2) {
+              state.isWiringInProgress = false;
+              renderCircuitState();
+            }
             getActiveStepElements(stepNum, `step-${stepNum}-node`).forEach((n) => {
               n.style.opacity = '1';
             });
